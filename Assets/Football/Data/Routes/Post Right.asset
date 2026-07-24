@@ -10,13 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9cbe91f9cd6a146c0a87f7377e39536d, type: 3}
-  m_Name: Fly
+  m_Name: Post Right
   m_EditorClassIdentifier: 
-  routeName: Fly
+  routeName: Post Right
   description: 
   steps:
   - direction: 0
-    distanceYards: 50
+    distanceYards: 10
+    speedYardsPerSecond: 6
+    delayBeforeStep: 0
+    stopAtEnd: 0
+  - direction: 5
+    distanceYards: 25
     speedYardsPerSecond: 6
     delayBeforeStep: 0
     stopAtEnd: 0

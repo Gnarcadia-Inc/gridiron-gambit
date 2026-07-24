@@ -26,7 +26,8 @@ MonoBehaviour:
     delayBeforeStep: 0
     stopAtEnd: 0
   - direction: 0
-    distanceYards: 15
+    distanceYards: 25
     speedYardsPerSecond: 6
     delayBeforeStep: 0
     stopAtEnd: 0
+  endBehavior: 1
