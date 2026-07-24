@@ -14,6 +14,9 @@ public class FootballRouteRunner : MonoBehaviour
     [SerializeField]
     private float stoppingDistance = 0.05f;
 
+    [SerializeField]
+    private float defaultReceiverSpeed = 1.5f;
+
     private Coroutine movementCoroutine;
 
     private Vector3 previousPosition;
@@ -307,7 +310,7 @@ public class FootballRouteRunner : MonoBehaviour
                     toTarget,
                     maximumMovement);
 
-            characterController.Move(movement * 2f);
+            characterController.Move(movement * defaultReceiverSpeed);
 
             yield return null;
         }
