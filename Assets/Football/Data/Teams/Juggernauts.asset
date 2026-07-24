@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c15a78c35674436e83d64f52165ffca, type: 3}
+  m_Name: Juggernauts
+  m_EditorClassIdentifier: 
+  teamName: Juggernauts
+  abbreviation: JUG
+  menuLogo: {fileID: 21300000, guid: 3fb2dd232507d41d3a8f463d9a8edebe, type: 3}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 2dce05a717430415c8eb7286ba5f20d5, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 2dce05a717430415c8eb7286ba5f20d5, type: 2}
+  fieldSprite: {fileID: 21300000, guid: e0e7624d296da4320a41676ae692501c, type: 3}
+  primaryColor: {r: 1, g: 1, b: 1, a: 1}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 1}
