@@ -10,37 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 838153aa0bc3d4241b32fa33b827d991, type: 3}
-  m_Name: PA Read
+  m_Name: HB Draw
   m_EditorClassIdentifier: 
-  playName: PA Read
+  playName: HB Draw
   description: 
   assignments:
   - role: 3
-    route: {fileID: 11400000, guid: 2a8f20e399d374700b89c0fb6dea6e23, type: 2}
+    route: {fileID: 11400000, guid: 89f7d2121a2d84fe2af109646255794b, type: 2}
     startingOffsetYards: {x: -14, y: 0}
     releaseDelay: 0
   - role: 4
-    route: {fileID: 11400000, guid: 83d92899e59c74d709e059a69674c602, type: 2}
-    startingOffsetYards: {x: 10, y: 0}
+    route: {fileID: 11400000, guid: 89f7d2121a2d84fe2af109646255794b, type: 2}
+    startingOffsetYards: {x: -8, y: 0}
     releaseDelay: 0
   - role: 1
-    route: {fileID: 11400000, guid: de289e09ce5d84efb8af60114515c0d0, type: 2}
-    startingOffsetYards: {x: -2, y: -4}
+    route: {fileID: 11400000, guid: 78e95d24fd502464896fcdb9b2ee249f, type: 2}
+    startingOffsetYards: {x: 0, y: -7}
     releaseDelay: 0
   - role: 2
-    route: {fileID: 11400000, guid: d41ba15abe6a14503ae66a0e00cd2598, type: 2}
-    startingOffsetYards: {x: 6, y: -1}
+    route: {fileID: 0}
+    startingOffsetYards: {x: 6, y: 0}
     releaseDelay: 0
   - role: 5
-    route: {fileID: 11400000, guid: fbf7cbf7f78db4d89b9a3888fed0d9a9, type: 2}
-    startingOffsetYards: {x: 16, y: 0}
+    route: {fileID: 11400000, guid: 89f7d2121a2d84fe2af109646255794b, type: 2}
+    startingOffsetYards: {x: 12, y: 0}
     releaseDelay: 0
-  playType: 0
+  playType: 1
   choiceDelaySeconds: 2
   runBallCarrierRole: 1
-  handoffDelaySeconds: 0.6
-  handoffDistanceYards: 1.5
-  maximumHandoffWaitSeconds: 1
+  handoffDelaySeconds: 0.3
+  handoffDistanceYards: 1
+  maximumHandoffWaitSeconds: 0.5
   offensiveLine:
   - role: 6
     startingOffsetYards: {x: -4, y: 0}
@@ -62,4 +62,4 @@ MonoBehaviour:
     startingOffsetYards: {x: 4, y: 0}
     route: {fileID: 0}
     endBehavior: 2
-  quarterbackStartingOffsetYards: {x: 0, y: -4}
+  quarterbackStartingOffsetYards: {x: 0, y: -2}

@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 838153aa0bc3d4241b32fa33b827d991, type: 3}
-  m_Name: PA Read
+  m_Name: Power O Flipped
   m_EditorClassIdentifier: 
-  playName: PA Read
+  playName: Power O Flipped
   description: 
   assignments:
   - role: 3
-    route: {fileID: 11400000, guid: 2a8f20e399d374700b89c0fb6dea6e23, type: 2}
-    startingOffsetYards: {x: -14, y: 0}
+    route: {fileID: 0}
+    startingOffsetYards: {x: -8, y: -1}
     releaseDelay: 0
   - role: 4
-    route: {fileID: 11400000, guid: 83d92899e59c74d709e059a69674c602, type: 2}
-    startingOffsetYards: {x: 10, y: 0}
+    route: {fileID: 11400000, guid: 3613b0995f77a42daa8e2d42dfb2c14b, type: 2}
+    startingOffsetYards: {x: 0, y: -6}
     releaseDelay: 0
   - role: 1
-    route: {fileID: 11400000, guid: de289e09ce5d84efb8af60114515c0d0, type: 2}
-    startingOffsetYards: {x: -2, y: -4}
+    route: {fileID: 11400000, guid: cf242def172d344fca16ecbdf59a7cc4, type: 2}
+    startingOffsetYards: {x: 0, y: -10}
     releaseDelay: 0
   - role: 2
-    route: {fileID: 11400000, guid: d41ba15abe6a14503ae66a0e00cd2598, type: 2}
-    startingOffsetYards: {x: 6, y: -1}
+    route: {fileID: 0}
+    startingOffsetYards: {x: -6, y: 0}
     releaseDelay: 0
   - role: 5
-    route: {fileID: 11400000, guid: fbf7cbf7f78db4d89b9a3888fed0d9a9, type: 2}
-    startingOffsetYards: {x: 16, y: 0}
+    route: {fileID: 0}
+    startingOffsetYards: {x: 6, y: 0}
     releaseDelay: 0
   playType: 0
   choiceDelaySeconds: 2
@@ -62,4 +62,4 @@ MonoBehaviour:
     startingOffsetYards: {x: 4, y: 0}
     route: {fileID: 0}
     endBehavior: 2
-  quarterbackStartingOffsetYards: {x: 0, y: -4}
+  quarterbackStartingOffsetYards: {x: 0, y: -2}

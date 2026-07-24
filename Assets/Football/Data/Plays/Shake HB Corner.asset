@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 838153aa0bc3d4241b32fa33b827d991, type: 3}
-  m_Name: PA Read
+  m_Name: Shake HB Corner
   m_EditorClassIdentifier: 
-  playName: PA Read
+  playName: Shake HB Corner
   description: 
   assignments:
   - role: 3
-    route: {fileID: 11400000, guid: 2a8f20e399d374700b89c0fb6dea6e23, type: 2}
+    route: {fileID: 11400000, guid: 2d774b87a26a34598a26eb47102b330b, type: 2}
     startingOffsetYards: {x: -14, y: 0}
     releaseDelay: 0
   - role: 4
-    route: {fileID: 11400000, guid: 83d92899e59c74d709e059a69674c602, type: 2}
-    startingOffsetYards: {x: 10, y: 0}
+    route: {fileID: 11400000, guid: 975a680adaeb34c56b2bb5d20f540e94, type: 2}
+    startingOffsetYards: {x: -8, y: -1}
     releaseDelay: 0
   - role: 1
-    route: {fileID: 11400000, guid: de289e09ce5d84efb8af60114515c0d0, type: 2}
+    route: {fileID: 11400000, guid: 2e9c53954b4c9445f81880241dee0dff, type: 2}
     startingOffsetYards: {x: -2, y: -4}
     releaseDelay: 0
   - role: 2
-    route: {fileID: 11400000, guid: d41ba15abe6a14503ae66a0e00cd2598, type: 2}
-    startingOffsetYards: {x: 6, y: -1}
+    route: {fileID: 11400000, guid: 9414f061ab6884e61a0393ceb97ddd56, type: 2}
+    startingOffsetYards: {x: 8, y: 0}
     releaseDelay: 0
   - role: 5
-    route: {fileID: 11400000, guid: fbf7cbf7f78db4d89b9a3888fed0d9a9, type: 2}
-    startingOffsetYards: {x: 16, y: 0}
+    route: {fileID: 11400000, guid: a4d6af6ddfb3a4a9a8acab72bae62b61, type: 2}
+    startingOffsetYards: {x: 14, y: -1}
     releaseDelay: 0
   playType: 0
   choiceDelaySeconds: 2
