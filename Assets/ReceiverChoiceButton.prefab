@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2260021801228990795}
   - component: {fileID: 2676284148193801489}
   - component: {fileID: 4914253129004150835}
+  - component: {fileID: 7719498812122587750}
   m_Layer: 5
   m_Name: ReceiverChoiceButton
   m_TagString: Untagged
@@ -90,7 +91,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 4914253129004150835}
+  buttonImage: {fileID: 2260021801228990795}
   label: {fileID: 0}
+  rectTransform: {fileID: 3621760925573965621}
+  canvasGroup: {fileID: 7719498812122587750}
+  offSprite: {fileID: 0}
+  onSprite: {fileID: 0}
+  worldOffset: {x: 0, y: 2.5, z: 0}
+  hideWhenOffScreen: 1
 --- !u!114 &4914253129004150835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,3 +143,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &7719498812122587750
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6546079810999991871}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

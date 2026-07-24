@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: e7324a32a60f847f398f4d3536168259, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.019230766
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e7324a32a60f847f398f4d3536168259, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.01923077
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e7324a32a60f847f398f4d3536168259, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.01923077
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e7324a32a60f847f398f4d3536168259, type: 3}
       propertyPath: m_LocalPosition.x
@@ -67,6 +67,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e7324a32a60f847f398f4d3536168259, type: 3}
       propertyPath: m_Name
       value: American Football
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e7324a32a60f847f398f4d3536168259, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -119,4 +123,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25d7e5d05c9764cf1964357aa89cea46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spinSpeed: 720
+  spinSpeed: 2880
+  ballModelRotationOffset: {x: 90, y: 0, z: 0}
