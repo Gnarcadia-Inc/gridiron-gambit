@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ReceiverSelectionPanel : MonoBehaviour
 {
+    [Header("UI")]
+
     [SerializeField]
     private Canvas canvas;
 
@@ -10,32 +12,68 @@ public class ReceiverSelectionPanel : MonoBehaviour
     private ReceiverChoiceButton buttonPrefab;
 
     [SerializeField]
+    private Transform buttonContainer;
+
+    [SerializeField]
     private Camera gameplayCamera;
 
-    private readonly List<GameObject>
+    [Header("Position Sprites")]
+
+    [SerializeField]
+    private List<ReceiverButtonSprite>
+        roleSprites = new();
+
+    private readonly List<ReceiverChoiceButton>
         spawnedButtons = new();
+
+    private FootballPlaySequenceController controller;
+
+    private ReceiverChoiceButton selectedButton;
+
+    public FootballReceiverTarget SelectedReceiver =>
+        selectedButton != null
+            ? selectedButton.Receiver
+            : null;
+
+    public bool HasSelection =>
+        selectedButton != null;
 
     private void Reset()
     {
-        canvas = GetComponentInParent<Canvas>();
+        canvas =
+            GetComponentInParent<Canvas>();
+
+        buttonContainer =
+            transform;
     }
 
     public void Show(
         IReadOnlyList<RuntimeReceiverAssignment> receivers,
-        FootballPlaySequenceController controller)
+        FootballPlaySequenceController playController)
     {
         ClearButtons();
+
+        controller = playController;
+        selectedButton = null;
 
         gameObject.SetActive(true);
 
         if (canvas == null)
         {
-            canvas = GetComponentInParent<Canvas>();
+            canvas =
+                GetComponentInParent<Canvas>();
         }
 
         if (gameplayCamera == null)
         {
-            gameplayCamera = Camera.main;
+            gameplayCamera =
+                Camera.main;
+        }
+
+        if (buttonContainer == null)
+        {
+            buttonContainer =
+                transform;
         }
 
         foreach (
@@ -48,37 +86,106 @@ public class ReceiverSelectionPanel : MonoBehaviour
                 continue;
             }
 
-            ReceiverChoiceButton button =
+            OffensiveRole role =
+                receiverAssignment.assignment.role;
+
+            ReceiverButtonSprite spriteEntry =
+                GetSpriteEntry(role);
+
+            ReceiverChoiceButton newButton =
                 Instantiate(
                     buttonPrefab,
-                    transform);
+                    buttonContainer);
 
-            button.Configure(
+            newButton.Configure(
                 receiverAssignment.receiver,
                 receiverAssignment.assignment.route,
-                controller,
+                this,
                 canvas,
-                gameplayCamera);
+                gameplayCamera,
+                spriteEntry != null
+                    ? spriteEntry.offSprite
+                    : null,
+                spriteEntry != null
+                    ? spriteEntry.onSprite
+                    : null);
 
-            spawnedButtons.Add(
-                button.gameObject);
+            /*
+             * All buttons start unselected/off.
+             */
+            newButton.SetSelected(false);
+
+            spawnedButtons.Add(newButton);
+        }
+    }
+
+    public void SelectButton(
+        ReceiverChoiceButton clickedButton)
+    {
+        if (clickedButton == null)
+        {
+            return;
+        }
+
+        selectedButton = clickedButton;
+
+        /*
+         * Exactly one button is On.
+         * Every other button is Off.
+         */
+        foreach (ReceiverChoiceButton button
+                 in spawnedButtons)
+        {
+            if (button == null)
+            {
+                continue;
+            }
+
+            button.SetSelected(
+                button == selectedButton);
+        }
+
+        if (controller != null)
+        {
+            controller.UpdatePendingThrowTarget(
+                selectedButton.Receiver);
         }
     }
 
     public void Hide()
     {
         ClearButtons();
+
+        selectedButton = null;
+        controller = null;
+
         gameObject.SetActive(false);
+    }
+
+    private ReceiverButtonSprite GetSpriteEntry(
+        OffensiveRole role)
+    {
+        foreach (ReceiverButtonSprite entry
+                 in roleSprites)
+        {
+            if (entry != null &&
+                entry.role == role)
+            {
+                return entry;
+            }
+        }
+
+        return null;
     }
 
     private void ClearButtons()
     {
-        foreach (GameObject spawnedButton
+        foreach (ReceiverChoiceButton button
                  in spawnedButtons)
         {
-            if (spawnedButton != null)
+            if (button != null)
             {
-                Destroy(spawnedButton);
+                Destroy(button.gameObject);
             }
         }
 

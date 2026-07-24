@@ -10,10 +10,24 @@ public class ReceiverChoiceButton : MonoBehaviour
     private Button button;
 
     [SerializeField]
+    private Image buttonImage;
+
+    [SerializeField]
     private TMP_Text label;
 
     [SerializeField]
     private RectTransform rectTransform;
+
+    [SerializeField]
+    private CanvasGroup canvasGroup;
+
+    [Header("Selection Sprites")]
+
+    [SerializeField]
+    private Sprite offSprite;
+
+    [SerializeField]
+    private Sprite onSprite;
 
     [Header("World Tracking")]
 
@@ -25,34 +39,74 @@ public class ReceiverChoiceButton : MonoBehaviour
     private bool hideWhenOffScreen = true;
 
     private FootballReceiverTarget receiver;
-    private FootballPlaySequenceController controller;
+    private FootballRoute route;
+    private ReceiverSelectionPanel selectionPanel;
 
     private Canvas canvas;
     private RectTransform canvasRect;
     private Camera worldCamera;
 
+    private bool isSelected;
+
+    public FootballReceiverTarget Receiver =>
+        receiver;
+
+    public bool IsSelected =>
+        isSelected;
+
     private void Reset()
     {
-        button = GetComponent<Button>();
-        label = GetComponentInChildren<TMP_Text>();
-        rectTransform = GetComponent<RectTransform>();
+        button =
+            GetComponent<Button>();
+
+        buttonImage =
+            GetComponent<Image>();
+
+        label =
+            GetComponentInChildren<TMP_Text>();
+
+        rectTransform =
+            GetComponent<RectTransform>();
+
+        canvasGroup =
+            GetComponent<CanvasGroup>();
     }
 
     public void Configure(
         FootballReceiverTarget receiverTarget,
-        FootballRoute route,
-        FootballPlaySequenceController playController,
+        FootballRoute assignedRoute,
+        ReceiverSelectionPanel panel,
         Canvas parentCanvas,
-        Camera gameplayCamera)
+        Camera gameplayCamera,
+        Sprite roleOffSprite,
+        Sprite roleOnSprite)
     {
         receiver = receiverTarget;
-        controller = playController;
+        route = assignedRoute;
+        selectionPanel = panel;
+
         canvas = parentCanvas;
         worldCamera = gameplayCamera;
 
+        offSprite = roleOffSprite;
+        onSprite = roleOnSprite;
+
         if (rectTransform == null)
         {
-            rectTransform = GetComponent<RectTransform>();
+            rectTransform =
+                GetComponent<RectTransform>();
+        }
+
+        if (buttonImage == null)
+        {
+            buttonImage =
+                GetComponent<Image>();
+        }
+
+        if (canvasGroup == null)
+        {
+            canvasGroup =
+                GetComponent<CanvasGroup>();
         }
 
         if (canvas != null)
@@ -80,10 +134,53 @@ public class ReceiverChoiceButton : MonoBehaviour
         if (button != null)
         {
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(SelectReceiver);
+            button.onClick.AddListener(
+                HandleButtonClicked);
         }
 
+        /*
+         * Every button begins in its unselected state.
+         */
+        SetSelected(false);
+
         UpdateScreenPosition();
+    }
+
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+
+        if (buttonImage == null)
+        {
+            return;
+        }
+
+        Sprite desiredSprite =
+            isSelected
+                ? onSprite
+                : offSprite;
+
+        if (desiredSprite != null)
+        {
+            buttonImage.sprite =
+                desiredSprite;
+        }
+    }
+
+    private void HandleButtonClicked()
+    {
+        if (selectionPanel == null ||
+            receiver == null)
+        {
+            return;
+        }
+
+        /*
+         * This does not throw the ball.
+         * It only tells the panel which receiver
+         * is currently selected.
+         */
+        selectionPanel.SelectButton(this);
     }
 
     private void LateUpdate()
@@ -96,7 +193,8 @@ public class ReceiverChoiceButton : MonoBehaviour
         if (receiver == null ||
             canvas == null ||
             canvasRect == null ||
-            rectTransform == null)
+            rectTransform == null ||
+            worldCamera == null)
         {
             return;
         }
@@ -109,12 +207,6 @@ public class ReceiverChoiceButton : MonoBehaviour
         Vector3 worldPosition =
             trackedTransform.position +
             worldOffset;
-
-        Camera conversionCamera =
-            canvas.renderMode ==
-            RenderMode.ScreenSpaceOverlay
-                ? null
-                : worldCamera;
 
         Vector3 viewportPosition =
             worldCamera.WorldToViewportPoint(
@@ -133,10 +225,16 @@ public class ReceiverChoiceButton : MonoBehaviour
             hideWhenOffScreen &&
             (isBehindCamera || isOutsideScreen);
 
-        if (button != null)
+        if (canvasGroup != null)
         {
-            button.gameObject.SetActive(
-                !shouldHide);
+            canvasGroup.alpha =
+                shouldHide ? 0f : 1f;
+
+            canvasGroup.interactable =
+                !shouldHide;
+
+            canvasGroup.blocksRaycasts =
+                !shouldHide;
         }
 
         if (shouldHide)
@@ -145,29 +243,25 @@ public class ReceiverChoiceButton : MonoBehaviour
         }
 
         Vector2 screenPoint =
-            RectTransformUtility
-                .WorldToScreenPoint(
-                    worldCamera,
-                    worldPosition);
+            RectTransformUtility.WorldToScreenPoint(
+                worldCamera,
+                worldPosition);
+
+        Camera canvasCamera =
+            canvas.renderMode ==
+            RenderMode.ScreenSpaceOverlay
+                ? null
+                : worldCamera;
 
         if (RectTransformUtility
             .ScreenPointToLocalPointInRectangle(
                 canvasRect,
                 screenPoint,
-                conversionCamera,
+                canvasCamera,
                 out Vector2 localPoint))
         {
             rectTransform.anchoredPosition =
                 localPoint;
-        }
-    }
-
-    private void SelectReceiver()
-    {
-        if (controller != null &&
-            receiver != null)
-        {
-            controller.SelectThrowTarget(receiver);
         }
     }
 }

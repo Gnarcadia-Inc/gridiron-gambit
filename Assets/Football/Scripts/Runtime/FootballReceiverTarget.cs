@@ -29,10 +29,45 @@ public class FootballReceiverTarget : MonoBehaviour
             ? gameObject.name
             : displayName;
 
+    [SerializeField]
+    private OffensiveRole role;
+
+    public OffensiveRole Role => role;
+
+    [SerializeField]
+    private FootballPlayerAnimator playerAnimator;
+
+    public FootballPlayerAnimator PlayerAnimator =>
+    playerAnimator;
+
     private void Reset()
     {
         routeRunner =
             GetComponent<FootballRouteRunner>();
+
+        playerAnimator =
+            GetComponent<FootballPlayerAnimator>();
+
+        if (playerAnimator == null)
+        {
+            playerAnimator =
+                GetComponentInChildren<FootballPlayerAnimator>();
+        }
+    }
+
+    private void Awake()
+    {
+        if (playerAnimator == null)
+        {
+            playerAnimator =
+                GetComponent<FootballPlayerAnimator>();
+        }
+
+        if (playerAnimator == null)
+        {
+            playerAnimator =
+                GetComponentInChildren<FootballPlayerAnimator>();
+        }
     }
 
     public Vector3 PredictCatchPosition(
@@ -72,5 +107,10 @@ public class FootballReceiverTarget : MonoBehaviour
             runAfterCatchSpeed);
 
         onCatch?.Invoke();
+    }
+
+    public void InitializeRole(OffensiveRole offensiveRole)
+    {
+        role = offensiveRole;
     }
 }

@@ -10,17 +10,99 @@ public class FootballPlayEditorWindow : EditorWindow
     private const float PreferredControlsHeight = 190f;
     private const float PlayerDotRadius = 11f;
 
-    private readonly Dictionary<
-        OffensiveRole,
-        Vector2> playerScreenPositions = new();
+    private readonly Dictionary<OffensiveRole, Vector2>
+        formationOffsets = new();
 
-    private readonly Dictionary<
-        OffensiveRole,
-        FootballRoute> routeAssignments = new();
+    private readonly Dictionary<OffensiveRole, FootballRoute>
+        routeAssignments = new();
 
-    private readonly Dictionary<
-        OffensiveRole,
-        Vector2> formationOffsets = new();
+    private readonly Dictionary<OffensiveRole, Vector2>
+        playerScreenPositions = new();
+
+    private static readonly OffensiveRole[] SkillPlayerRoles =
+    {
+        OffensiveRole.WideReceiverLeft,
+        OffensiveRole.SlotReceiver,
+        OffensiveRole.RunningBack,
+        OffensiveRole.TightEnd,
+        OffensiveRole.WideReceiverRight
+    };
+
+    private static readonly OffensiveRole[] OffensiveLineRoles =
+    {
+        OffensiveRole.LeftTackle,
+        OffensiveRole.LeftGuard,
+        OffensiveRole.Center,
+        OffensiveRole.RightGuard,
+        OffensiveRole.RightTackle
+    };
+
+    private static readonly OffensiveRole[] EditableOffensiveRoles =
+    {
+        OffensiveRole.WideReceiverLeft,
+        OffensiveRole.SlotReceiver,
+        OffensiveRole.LeftTackle,
+        OffensiveRole.LeftGuard,
+        OffensiveRole.Center,
+        OffensiveRole.RightGuard,
+        OffensiveRole.RightTackle,
+        OffensiveRole.TightEnd,
+        OffensiveRole.WideReceiverRight,
+        OffensiveRole.RunningBack
+    };
+
+    private static readonly Dictionary<OffensiveRole, Vector2>
+        DefaultFormation = new()
+        {
+            /*
+             * X: negative is left, positive is right.
+             * Y: positive is toward the defense, negative is behind the QB.
+             */
+            {
+                OffensiveRole.Quarterback,
+                new Vector2(0f, -2f)
+            },
+            {
+                OffensiveRole.WideReceiverLeft,
+                new Vector2(-14f, 0f)
+            },
+            {
+                OffensiveRole.SlotReceiver,
+                new Vector2(-8f, 0f)
+            },
+            {
+                OffensiveRole.LeftTackle,
+                new Vector2(-4f, 0f)
+            },
+            {
+                OffensiveRole.LeftGuard,
+                new Vector2(-2f, 0f)
+            },
+            {
+                OffensiveRole.Center,
+                new Vector2(0f, 0f)
+            },
+            {
+                OffensiveRole.RightGuard,
+                new Vector2(2f, 0f)
+            },
+            {
+                OffensiveRole.RightTackle,
+                new Vector2(4f, 0f)
+            },
+            {
+                OffensiveRole.TightEnd,
+                new Vector2(8f, 0f)
+            },
+            {
+                OffensiveRole.WideReceiverRight,
+                new Vector2(14f, 0f)
+            },
+            {
+                OffensiveRole.RunningBack,
+                new Vector2(0f, -4f)
+            }
+        };
 
     private List<FootballRoute> savedRoutes = new();
     private List<FootballPlay> savedPlays = new();
@@ -138,7 +220,7 @@ public class FootballPlayEditorWindow : EditorWindow
         GUILayout.Label("Saved Routes", titleStyle);
 
         EditorGUILayout.HelpBox(
-            "Select a player, then click a route.",
+            "Select any offensive player, then click a route.",
             MessageType.Info);
 
         if (GUILayout.Button("Refresh"))
@@ -173,7 +255,6 @@ public class FootballPlayEditorWindow : EditorWindow
         }
 
         GUILayout.EndScrollView();
-
         GUILayout.EndArea();
     }
 
@@ -184,8 +265,7 @@ public class FootballPlayEditorWindow : EditorWindow
         GUILayout.Label("Saved Plays", titleStyle);
 
         EditorGUILayout.HelpBox(
-            "Click a play to preview it. " +
-            "Saved plays are not modified.",
+            "Click a play to preview it. Saving creates a new asset.",
             MessageType.Info);
 
         playSidebarScroll =
@@ -207,7 +287,7 @@ public class FootballPlayEditorWindow : EditorWindow
             }
 
             Color previousBackgroundColor =
-    GUI.backgroundColor;
+                GUI.backgroundColor;
 
             if (play == selectedSavedPlay)
             {
@@ -344,62 +424,47 @@ public class FootballPlayEditorWindow : EditorWindow
     {
         playerScreenPositions.Clear();
 
-        Vector2 quarterbackPosition =
-            new Vector2(
-                rect.center.x,
-                rect.yMax - 75f);
+        float pixelsPerYard =
+            Mathf.Clamp(
+                rect.width / 55f,
+                8f,
+                16f);
 
-        playerScreenPositions[
-            OffensiveRole.Quarterback] =
-            quarterbackPosition;
+        const float maximumBackfieldDepthYards = 10f;
+        const float bottomPadding = 35f;
 
-        float pixelsPerYard = Mathf.Clamp(
-            rect.width / 55f,
-            8f,
-            16f);
+        float requiredBackfieldPixels = maximumBackfieldDepthYards *pixelsPerYard;
+
+        Vector2 lineOfScrimmageOrigin = new Vector2(rect.center.x, rect.yMax - bottomPadding - requiredBackfieldPixels);
 
         AddPlayerScreenPosition(
-            OffensiveRole.WideReceiverLeft,
-            quarterbackPosition,
+            OffensiveRole.Quarterback,
+            lineOfScrimmageOrigin,
             pixelsPerYard,
             rect);
 
-        AddPlayerScreenPosition(
-            OffensiveRole.TightEnd,
-            quarterbackPosition,
-            pixelsPerYard,
-            rect);
-
-        AddPlayerScreenPosition(
-            OffensiveRole.SlotReceiver,
-            quarterbackPosition,
-            pixelsPerYard,
-            rect);
-
-        AddPlayerScreenPosition(
-            OffensiveRole.RunningBack,
-            quarterbackPosition,
-            pixelsPerYard,
-            rect);
-
-        AddPlayerScreenPosition(
-            OffensiveRole.WideReceiverRight,
-            quarterbackPosition,
-            pixelsPerYard,
-            rect);
+        foreach (OffensiveRole role
+                 in EditableOffensiveRoles)
+        {
+            AddPlayerScreenPosition(
+                role,
+                lineOfScrimmageOrigin,
+                pixelsPerYard,
+                rect);
+        }
     }
 
     private void AddPlayerScreenPosition(
-    OffensiveRole role,
-    Vector2 quarterbackPosition,
-    float pixelsPerYard,
-    Rect fieldRect)
+        OffensiveRole role,
+        Vector2 quarterbackPosition,
+        float pixelsPerYard,
+        Rect fieldRect)
     {
         if (!formationOffsets.TryGetValue(
                 role,
                 out Vector2 offset))
         {
-            offset = Vector2.zero;
+            offset = GetDefaultOffset(role);
             formationOffsets[role] = offset;
         }
 
@@ -411,17 +476,19 @@ public class FootballPlayEditorWindow : EditorWindow
                 quarterbackPosition.y -
                 offset.y * pixelsPerYard);
 
-        float margin = 35f;
+        const float margin = 35f;
 
-        screenPosition.x = Mathf.Clamp(
-            screenPosition.x,
-            fieldRect.xMin + margin,
-            fieldRect.xMax - margin);
+        screenPosition.x =
+            Mathf.Clamp(
+                screenPosition.x,
+                fieldRect.xMin + margin,
+                fieldRect.xMax - margin);
 
-        screenPosition.y = Mathf.Clamp(
-            screenPosition.y,
-            fieldRect.yMin + margin,
-            fieldRect.yMax - margin);
+        screenPosition.y =
+            Mathf.Clamp(
+                screenPosition.y,
+                fieldRect.yMin + margin,
+                fieldRect.yMax - margin);
 
         playerScreenPositions[role] =
             screenPosition;
@@ -484,10 +551,9 @@ public class FootballPlayEditorWindow : EditorWindow
             Handles.color =
                 role == selectedRole
                     ? Color.yellow
-                    : new Color(
-                        0.55f,
-                        0.85f,
-                        1f);
+                    : IsOffensiveLineman(role)
+                        ? new Color(1f, 0.7f, 0.3f)
+                        : new Color(0.55f, 0.85f, 1f);
 
             Handles.DrawAAPolyLine(
                 role == selectedRole ? 5f : 3f,
@@ -538,16 +604,30 @@ public class FootballPlayEditorWindow : EditorWindow
             bool isQuarterback =
                 role == OffensiveRole.Quarterback;
 
-            bool selected =
-                !isQuarterback &&
-                role == selectedRole;
+            bool selected = role == selectedRole;
+
+            Color dotColor;
+
+            if (isQuarterback)
+            {
+                dotColor =
+                    new Color(1f, 0.4f, 0.25f);
+            }
+            else if (IsOffensiveLineman(role))
+            {
+                dotColor =
+                    new Color(1f, 0.62f, 0.2f);
+            }
+            else
+            {
+                dotColor =
+                    new Color(0.2f, 0.65f, 1f);
+            }
 
             FootballEditorUtility.DrawDot(
                 center,
                 PlayerDotRadius,
-                isQuarterback
-                    ? new Color(1f, 0.4f, 0.25f)
-                    : new Color(0.2f, 0.65f, 1f),
+                dotColor,
                 selected);
 
             GUI.Label(
@@ -587,16 +667,8 @@ public class FootballPlayEditorWindow : EditorWindow
             return;
         }
 
-        foreach (KeyValuePair<
-                     OffensiveRole,
-                     Vector2> player
-                 in playerScreenPositions)
+        foreach (KeyValuePair<OffensiveRole, Vector2> player in playerScreenPositions)
         {
-            if (player.Key ==
-                OffensiveRole.Quarterback)
-            {
-                continue;
-            }
 
             Rect clickableRect =
                 new Rect(
@@ -663,8 +735,16 @@ public class FootballPlayEditorWindow : EditorWindow
             GetRoleDisplayName(selectedRole));
 
         EditorGUILayout.LabelField(
-            "Assigned Route",
-            assignedRoute != null
+            "Player Group",
+            IsOffensiveLineman(selectedRole)
+                ? "Offensive Line"
+                : "Skill Player");
+
+        bool selectedPlayerIsQuarterback = selectedRole == OffensiveRole.Quarterback;
+
+        EditorGUILayout.LabelField("Assigned Route", selectedPlayerIsQuarterback
+            ? "QB dropback handled separately"
+            : assignedRoute != null
                 ? assignedRoute.routeName
                 : "None");
 
@@ -672,7 +752,8 @@ public class FootballPlayEditorWindow : EditorWindow
                 selectedRole,
                 out Vector2 selectedOffset))
         {
-            selectedOffset = Vector2.zero;
+            selectedOffset =
+                GetDefaultOffset(selectedRole);
         }
 
         EditorGUI.BeginChangeCheck();
@@ -702,10 +783,12 @@ public class FootballPlayEditorWindow : EditorWindow
 
         GUILayout.Space(6f);
 
-        GUI.enabled = assignedRoute != null;
+        GUILayout.BeginHorizontal();
+
+        GUI.enabled = !selectedPlayerIsQuarterback && assignedRoute != null;
 
         if (GUILayout.Button(
-                "Remove Selected Player Route",
+                "Remove Route",
                 GUILayout.Height(26f)))
         {
             routeAssignments.Remove(selectedRole);
@@ -717,6 +800,22 @@ public class FootballPlayEditorWindow : EditorWindow
 
         GUI.enabled = true;
 
+        if (GUILayout.Button(
+                "Reset Position",
+                GUILayout.Height(26f)))
+        {
+            formationOffsets[selectedRole] =
+                GetDefaultOffset(selectedRole);
+
+            message =
+                $"Reset {GetRoleDisplayName(selectedRole)} " +
+                "to its default position.";
+
+            Repaint();
+        }
+
+        GUILayout.EndHorizontal();
+
         GUILayout.BeginHorizontal();
 
         if (GUILayout.Button(
@@ -727,8 +826,7 @@ public class FootballPlayEditorWindow : EditorWindow
         }
 
         GUI.enabled =
-            !string.IsNullOrWhiteSpace(playName) &&
-            routeAssignments.Count > 0;
+            !string.IsNullOrWhiteSpace(playName);
 
         if (GUILayout.Button(
                 "Save Play",
@@ -740,6 +838,21 @@ public class FootballPlayEditorWindow : EditorWindow
         GUI.enabled = true;
 
         GUILayout.EndHorizontal();
+
+        int assignedSkillRoutes =
+            CountAssignedRoutes(SkillPlayerRoles);
+
+        int assignedLineRoutes =
+            CountAssignedRoutes(OffensiveLineRoles);
+
+        EditorGUILayout.LabelField(
+            "Formation",
+            "1 QB + 5 skill players + 5 offensive linemen");
+
+        EditorGUILayout.LabelField(
+            "Routes",
+            $"{assignedSkillRoutes}/5 skill, " +
+            $"{assignedLineRoutes}/5 line");
 
         if (!string.IsNullOrWhiteSpace(message))
         {
@@ -753,13 +866,23 @@ public class FootballPlayEditorWindow : EditorWindow
         GUILayout.Space(4f);
 
         EditorGUILayout.EndScrollView();
-
         GUILayout.EndArea();
     }
 
     private void AssignRouteToSelectedPlayer(
         FootballRoute route)
     {
+        if (selectedRole ==
+        OffensiveRole.Quarterback)
+        {
+            message =
+                "The quarterback cannot be assigned a route. " +
+                "His dropback is controlled separately.";
+
+            Repaint();
+            return;
+        }
+
         routeAssignments[selectedRole] = route;
 
         message =
@@ -778,28 +901,55 @@ public class FootballPlayEditorWindow : EditorWindow
 
         play.playName = playName.Trim();
 
-        foreach (KeyValuePair<
-                     OffensiveRole,
-                     FootballRoute> assignment
-                 in routeAssignments)
-        {
-            if (assignment.Value == null)
-            {
-                continue;
-            }
+        formationOffsets.TryGetValue(OffensiveRole.Quarterback, out Vector2 quarterbackOffset);
+        play.quarterbackStartingOffsetYards = quarterbackOffset;
 
+        foreach (OffensiveRole role in SkillPlayerRoles)
+        {
             formationOffsets.TryGetValue(
-                assignment.Key,
+                role,
                 out Vector2 startingOffset);
+
+            routeAssignments.TryGetValue(
+                role,
+                out FootballRoute assignedRoute);
 
             play.assignments.Add(
                 new RouteAssignment
                 {
-                    role = assignment.Key,
-                    route = assignment.Value,
+                    role = role,
+                    route = assignedRoute,
                     startingOffsetYards =
                         startingOffset,
                     releaseDelay = 0f
+                });
+        }
+
+        /*
+         * Always write all five offensive linemen using the same editor
+         * formation and route dictionaries as the skill players.
+         */
+        play.offensiveLine.Clear();
+
+        foreach (OffensiveRole role in OffensiveLineRoles)
+        {
+            formationOffsets.TryGetValue(
+                role,
+                out Vector2 startingOffset);
+
+            routeAssignments.TryGetValue(
+                role,
+                out FootballRoute assignedRoute);
+
+            play.offensiveLine.Add(
+                new OffensiveLinePlayEntry
+                {
+                    role = role,
+                    route = assignedRoute,
+                    startingOffsetYards =
+                        startingOffset,
+                    endBehavior =
+                        RouteEndBehavior.Block
                 });
         }
 
@@ -819,6 +969,7 @@ public class FootballPlayEditorWindow : EditorWindow
             play,
             uniquePath);
 
+        EditorUtility.SetDirty(play);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
@@ -828,31 +979,68 @@ public class FootballPlayEditorWindow : EditorWindow
         RefreshAssets();
 
         message =
-            $"Saved play: {play.playName}";
+            $"Saved play: {play.playName} " +
+            "(1 QB, 5 skill players, 5 linemen).";
     }
 
     private void PreviewSavedPlay(
-    FootballPlay play)
+        FootballPlay play)
     {
+        if (play == null)
+        {
+            return;
+        }
+
         playName = play.playName;
 
         routeAssignments.Clear();
-        formationOffsets.Clear();
-
         SetDefaultFormation();
 
-        foreach (RouteAssignment assignment
-                 in play.assignments)
-        {
-            formationOffsets[
-                assignment.role] =
-                assignment.startingOffsetYards;
+        formationOffsets[OffensiveRole.Quarterback] = play.quarterbackStartingOffsetYards;
 
-            if (assignment.route != null)
+        if (play.assignments != null)
+        {
+            foreach (RouteAssignment assignment
+                     in play.assignments)
             {
-                routeAssignments[
+                if (assignment == null)
+                {
+                    continue;
+                }
+
+                formationOffsets[
                     assignment.role] =
-                    assignment.route;
+                    assignment.startingOffsetYards;
+
+                if (assignment.route != null)
+                {
+                    routeAssignments[
+                        assignment.role] =
+                        assignment.route;
+                }
+            }
+        }
+
+        if (play.offensiveLine != null)
+        {
+            foreach (OffensiveLinePlayEntry lineman
+                     in play.offensiveLine)
+            {
+                if (lineman == null)
+                {
+                    continue;
+                }
+
+                formationOffsets[
+                    lineman.role] =
+                    lineman.startingOffsetYards;
+
+                if (lineman.route != null)
+                {
+                    routeAssignments[
+                        lineman.role] =
+                        lineman.route;
+                }
             }
         }
 
@@ -860,7 +1048,7 @@ public class FootballPlayEditorWindow : EditorWindow
 
         message =
             $"Previewing saved play: {play.playName}. " +
-            "Saving now creates a separate asset.";
+            "Saving creates a separate asset.";
 
         Repaint();
     }
@@ -870,13 +1058,15 @@ public class FootballPlayEditorWindow : EditorWindow
         playName = "New Play";
 
         routeAssignments.Clear();
-        formationOffsets.Clear();
-
         SetDefaultFormation();
+
+        selectedRole =
+            OffensiveRole.WideReceiverLeft;
 
         selectedSavedPlay = null;
 
-        message = "Started a new play.";
+        message =
+            "Started a new 11-player offensive play.";
 
         Repaint();
     }
@@ -885,31 +1075,44 @@ public class FootballPlayEditorWindow : EditorWindow
     {
         formationOffsets.Clear();
 
-        /*
-         * X: left/right from the quarterback.
-         * Y: forward/backward from the quarterback.
-         *
-         * Positive Y is toward the defense.
-         */
-        formationOffsets[
-            OffensiveRole.WideReceiverLeft] =
-            new Vector2(-12f, 2f);
+        foreach (KeyValuePair<
+                     OffensiveRole,
+                     Vector2> entry
+                 in DefaultFormation)
+        {
+            formationOffsets[
+                entry.Key] =
+                entry.Value;
+        }
+    }
 
-        formationOffsets[
-            OffensiveRole.TightEnd] =
-            new Vector2(-4f, 2f);
+    private static Vector2 GetDefaultOffset(
+        OffensiveRole role)
+    {
+        return DefaultFormation.TryGetValue(
+            role,
+            out Vector2 offset)
+                ? offset
+                : Vector2.zero;
+    }
 
-        formationOffsets[
-            OffensiveRole.SlotReceiver] =
-            new Vector2(0f, 2f);
+    private int CountAssignedRoutes(
+        IEnumerable<OffensiveRole> roles)
+    {
+        int count = 0;
 
-        formationOffsets[
-            OffensiveRole.RunningBack] =
-            new Vector2(3f, -2f);
+        foreach (OffensiveRole role in roles)
+        {
+            if (routeAssignments.TryGetValue(
+                    role,
+                    out FootballRoute route) &&
+                route != null)
+            {
+                count++;
+            }
+        }
 
-        formationOffsets[
-            OffensiveRole.WideReceiverRight] =
-            new Vector2(12f, 2f);
+        return count;
     }
 
     private void RefreshAssets()
@@ -919,6 +1122,21 @@ public class FootballPlayEditorWindow : EditorWindow
 
         savedPlays =
             FootballEditorUtility.FindAllPlays();
+    }
+
+    private static bool IsOffensiveLineman(
+        OffensiveRole role)
+    {
+        return role ==
+                   OffensiveRole.LeftTackle ||
+               role ==
+                   OffensiveRole.LeftGuard ||
+               role ==
+                   OffensiveRole.Center ||
+               role ==
+                   OffensiveRole.RightGuard ||
+               role ==
+                   OffensiveRole.RightTackle;
     }
 
     private static string GetRoleDisplayName(
@@ -932,6 +1150,11 @@ public class FootballPlayEditorWindow : EditorWindow
             OffensiveRole.WideReceiverLeft => "WR Left",
             OffensiveRole.SlotReceiver => "Slot",
             OffensiveRole.WideReceiverRight => "WR Right",
+            OffensiveRole.LeftTackle => "LT",
+            OffensiveRole.LeftGuard => "LG",
+            OffensiveRole.Center => "C",
+            OffensiveRole.RightGuard => "RG",
+            OffensiveRole.RightTackle => "RT",
             _ => role.ToString()
         };
     }

@@ -25,6 +25,13 @@ public enum RouteDirection
     SlantBackwardRight
 }
 
+public enum RouteEndBehavior
+{
+    None,
+    WaitForPass,
+    Block
+}
+
 [Serializable]
 public class RouteStep
 {
@@ -42,9 +49,7 @@ public class RouteStep
     public bool stopAtEnd;
 }
 
-[CreateAssetMenu(
-    fileName = "New Route",
-    menuName = "Football/Route")]
+[CreateAssetMenu(fileName = "New Route", menuName = "Football/Route")]
 public class FootballRoute : ScriptableObject
 {
     public string routeName = "New Route";
@@ -53,4 +58,6 @@ public class FootballRoute : ScriptableObject
     public string description;
 
     public List<RouteStep> steps = new();
+
+    public RouteEndBehavior endBehavior = RouteEndBehavior.WaitForPass;
 }

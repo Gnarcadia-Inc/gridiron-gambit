@@ -6,7 +6,7 @@ public class SimpleTargetCamera : MonoBehaviour
     private Transform target;
 
     private Vector3 localOffset =
-        new Vector3(0f, 4f, -6f);
+        new Vector3(0f, 20f, -30f);
 
     private float positionDamping = 8f;
 

@@ -20,11 +20,13 @@ public class FootballRouteRunner : MonoBehaviour
     private Vector3 currentVelocity;
 
     private bool isRunningRoute;
-    private bool hasBall;
+    private bool hasBall = false;
 
     public Vector3 CurrentVelocity => currentVelocity;
     public bool IsRunningRoute => isRunningRoute;
     public bool HasBall => hasBall;
+
+    public event System.Action RouteCompleted;
 
     private void Reset()
     {
@@ -55,9 +57,12 @@ public class FootballRouteRunner : MonoBehaviour
         previousPosition = transform.position;
     }
 
-    public void PrepareForPlay(
-        Transform playOrigin,
-        Vector2 startingOffsetYards)
+    public void SetHasBall(bool value)
+    {
+        hasBall = value;
+    }
+
+    public void PrepareForPlay(Transform playOrigin, Vector2 startingOffsetYards)
     {
         StopMovement();
 
@@ -260,6 +265,11 @@ public class FootballRouteRunner : MonoBehaviour
         }
 
         isRunningRoute = false;
+
+        currentVelocity = Vector3.zero;
+
+        RouteCompleted?.Invoke();
+
         movementCoroutine = null;
     }
 
@@ -297,7 +307,7 @@ public class FootballRouteRunner : MonoBehaviour
                     toTarget,
                     maximumMovement);
 
-            characterController.Move(movement);
+            characterController.Move(movement * 2f);
 
             yield return null;
         }

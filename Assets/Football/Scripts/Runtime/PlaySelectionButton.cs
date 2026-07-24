@@ -5,38 +5,68 @@ using UnityEngine.UI;
 public class PlaySelectionButton : MonoBehaviour
 {
     [SerializeField]
-    private FootballPlay play;
-
-    [SerializeField]
-    private FootballPlaySequenceController controller;
-
-    [SerializeField]
     private Button button;
 
     [SerializeField]
-    private TMP_Text label;
+    private Image playImage;
 
-    private void Awake()
+    [SerializeField]
+    private TMP_Text playNameText;
+
+    private FootballPlayOption option;
+    private FootballGameSetupController setupController;
+
+    private void Reset()
     {
-        if (label != null &&
-            play != null)
+        button = GetComponent<Button>();
+        playImage = GetComponent<Image>();
+        playNameText =
+            GetComponentInChildren<TMP_Text>();
+    }
+
+    public void Configure(
+        FootballPlayOption newOption,
+        FootballGameSetupController controller)
+    {
+        option = newOption;
+        setupController = controller;
+
+        if (playNameText != null)
         {
-            label.text = play.playName;
+            playNameText.text =
+                option != null &&
+                option.play != null
+                    ? option.play.playName
+                    : "Unavailable";
         }
 
-        if (button != null)
+        if (playImage != null &&
+            option != null &&
+            option.buttonSprite != null)
         {
-            button.onClick.AddListener(
-                SelectPlay);
+            playImage.sprite =
+                option.buttonSprite;
         }
+
+        button.interactable =
+            option != null &&
+            option.play != null;
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(
+            SelectPlay);
     }
 
     private void SelectPlay()
     {
-        if (controller != null &&
-            play != null)
+        if (option == null ||
+            option.play == null ||
+            setupController == null)
         {
-            controller.SelectAndStartPlay(play);
+            return;
         }
+
+        setupController.SelectPlay(
+            option.play);
     }
 }
