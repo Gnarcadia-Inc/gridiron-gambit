@@ -11,11 +11,11 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - OffensePlayer
+  - DefensePlayer
+  - PlayerTrigger
+  - Ball
+  - Field
   - 
   - 
   - 
