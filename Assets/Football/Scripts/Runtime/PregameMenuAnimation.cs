@@ -241,6 +241,8 @@ public class PregameMenuAnimation : MonoBehaviour
         holeTitleImage.gameObject.SetActive(false);
         titleImage.gameObject.SetActive(true);
 
+        rotatingObject.gameObject.SetActive(false);
+
         animationCoroutine = null;
     }
 
@@ -288,7 +290,18 @@ public class PregameMenuAnimation : MonoBehaviour
     {
         Canvas.ForceUpdateCanvases();
 
+        rotatingObject.gameObject.SetActive(false);
+
         RectTransform titleRect = titleImage.rectTransform;
+        Image currentTitleImage = titleImage;
+
+        if (!titleImage.gameObject.activeInHierarchy)
+        {
+            titleRect = holeTitleImage.rectTransform;
+            currentTitleImage = holeTitleImage;
+        }
+
+        
         RectTransform backRect = backImage.rectTransform;
         RectTransform balanceRect = balanceTab.rectTransform;
 
@@ -305,7 +318,7 @@ public class PregameMenuAnimation : MonoBehaviour
          * animation completed perfectly.
          */
         Vector3 titleStartScale = titleRect.localScale;
-        float titleStartAlpha = titleImage.color.a;
+        float titleStartAlpha = currentTitleImage.color.a;
 
         Vector3 objectStartScale = rotatingObject.localScale;
 
@@ -354,7 +367,7 @@ public class PregameMenuAnimation : MonoBehaviour
                 t);
 
             SetGraphicAlpha(
-                titleImage,
+                currentTitleImage,
                 Mathf.Lerp(titleStartAlpha, 0f, t));
 
             // 3D object grows back to its starting scale.
@@ -415,7 +428,7 @@ public class PregameMenuAnimation : MonoBehaviour
 
         // Apply exact final exit values.
         titleRect.localScale = Vector3.one * 3f;
-        SetGraphicAlpha(titleImage, 0f);
+        SetGraphicAlpha(currentTitleImage, 0f);
 
         rotatingObject.localScale =
             new Vector3(160f, 110f, 110f);
