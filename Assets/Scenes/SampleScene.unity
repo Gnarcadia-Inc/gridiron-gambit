@@ -3822,7 +3822,7 @@ MonoBehaviour:
   runAfterCatchSpeedYardsPerSecond: 12
   receiverSelectionPanel: {fileID: 259051369}
   targetCamera: {fileID: 963194229}
-  quarterbackCameraOffset: {x: 0, y: 3, z: -5}
+  quarterbackCameraOffset: {x: 0, y: 4, z: -5}
   ballCameraOffset: {x: 0, y: -2, z: 0}
   receiverCameraOffset: {x: 0, y: 2, z: -3}
   onFormationReady:

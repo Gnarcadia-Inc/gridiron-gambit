@@ -29,11 +29,8 @@ public class ReceiverChoiceButton : MonoBehaviour
     [SerializeField]
     private Sprite onSprite;
 
-    [Header("World Tracking")]
-
-    [SerializeField]
     private Vector3 worldOffset =
-        new Vector3(0f, 2.5f, 0f);
+        new Vector3(0f, 5f, 0f);
 
     [SerializeField]
     private bool hideWhenOffScreen = true;
@@ -199,10 +196,7 @@ public class ReceiverChoiceButton : MonoBehaviour
             return;
         }
 
-        Transform trackedTransform =
-            receiver.CatchPoint != null
-                ? receiver.CatchPoint
-                : receiver.transform;
+        Transform trackedTransform = receiver.transform;
 
         Vector3 worldPosition =
             trackedTransform.position +
