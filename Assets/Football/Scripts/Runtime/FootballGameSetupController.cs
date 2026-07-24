@@ -88,6 +88,9 @@ public class FootballGameSetupController : MonoBehaviour
     public FootballGameSituation CurrentSituation =>
         currentSituation;
 
+    [SerializeField]
+    private PregameMenuAnimation pregameMenuAnimation;
+
     private void Awake()
     {
         Time.timeScale = 1f;
@@ -185,8 +188,6 @@ public class FootballGameSetupController : MonoBehaviour
 
         SetMainMenuInteractable(false);
 
-        mainMenu.SetActive(false);
-
         currentSituation =
             FootballSituationGenerator.Generate(
                 SelectedTeam,
@@ -196,15 +197,25 @@ public class FootballGameSetupController : MonoBehaviour
 
         bool revealFinished = false;
 
-        sitchPanel.Reveal(
-            currentSituation,
-            teams,
-            () => revealFinished = true);
+        pregameMenuAnimation.PlayExitAnimation(() =>
+        {
+            sitchPanel.Reveal(
+                currentSituation,
+                teams,
+                () => revealFinished = true);
+        });
+
+        //sitchPanel.Reveal(
+        //    currentSituation,
+        //    teams,
+        //    () => revealFinished = true);
 
         while (!revealFinished)
         {
             yield return null;
         }
+
+        mainMenu.SetActive(false);
 
         yield return new WaitForSecondsRealtime(
             situationHoldAfterReveal);

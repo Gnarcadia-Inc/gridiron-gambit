@@ -51,6 +51,42 @@ public class FootballSituationPanel : MonoBehaviour
 
     private Coroutine revealCoroutine;
 
+    [SerializeField]
+    private float preRevealSeconds = 2f;
+
+    [SerializeField]
+    private float textFadeDuration = 0.25f;
+
+    [SerializeField]
+    private float finalizationStartDelay = 3f;
+
+    [SerializeField]
+    private float finalizationEndDelay = 3f;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float initialTextAlpha = 0.65f;
+
+    private TMP_Text[] animatedTexts;
+
+    private void Awake()
+    {
+        animatedTexts = new TMP_Text[]
+        {
+            playerText,
+            opponentText,
+            playerScoreText,
+            oppScoreText,
+            quarterText,
+            clockText,
+            downText,
+            yardsToGoText,
+            yardLineText
+        };
+
+        SetAllTextAlpha(initialTextAlpha);
+    }
+
     public void Reveal(
         FootballGameSituation situation,
         FootballTeamDefinition[] teamBank,
@@ -79,44 +115,46 @@ public class FootballSituationPanel : MonoBehaviour
             revealCoroutine = null;
         }
 
+        SetAllTextAlpha(0f);
         gameObject.SetActive(false);
     }
 
     private IEnumerator RevealRoutine(
-        FootballGameSituation situation,
-        FootballTeamDefinition[] teamBank,
-        Action onFinished)
+    FootballGameSituation situation,
+    FootballTeamDefinition[] teamBank,
+    Action onFinished)
     {
-        /*
-         * Left-to-right stop order.
-         *
-         * Opponent
-         * Score
-         * Quarter
-         * Clock
-         * Down
-         * Yards
-         * Yard line
-         */
         const int fieldCount = 7;
 
         float intervalBetweenStops =
-            totalRevealSeconds /
-            fieldCount;
+            totalRevealSeconds / fieldCount;
+
+        SetAllTextAlpha(0f);
 
         float elapsed = 0f;
         float nextRollUpdate = 0f;
         int stoppedFields = 0;
 
-        while (elapsed < totalRevealSeconds)
+        /*
+         * Total duration now includes:
+         *
+         * 1. The initial rolling delay.
+         * 2. The normal sequential finalization period.
+         */
+        float fullSequenceDuration =
+            finalizationStartDelay +
+            totalRevealSeconds;
+
+        while (elapsed < fullSequenceDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
-            nextRollUpdate -= Time.unscaledDeltaTime;
+            float deltaTime = Time.unscaledDeltaTime;
+
+            elapsed += deltaTime;
+            nextRollUpdate -= deltaTime;
 
             if (nextRollUpdate <= 0f)
             {
-                nextRollUpdate =
-                    rollingUpdateInterval;
+                nextRollUpdate = rollingUpdateInterval;
 
                 UpdateRollingFields(
                     stoppedFields,
@@ -124,20 +162,62 @@ public class FootballSituationPanel : MonoBehaviour
                     teamBank);
             }
 
+            /*
+             * Fade each text group in one second before its own
+             * finalization time.
+             *
+             * finalizationStartDelay pushes every field's
+             * finalization and fade time forward.
+             */
+            for (int fieldIndex = 0;
+                 fieldIndex < fieldCount;
+                 fieldIndex++)
+            {
+                float finalValueTime =
+                    finalizationStartDelay +
+                    intervalBetweenStops *
+                    (fieldIndex + 1);
+
+                float fadeStartTime =
+                    finalValueTime - 1f;
+
+                float fadeProgress =
+                    Mathf.InverseLerp(
+                        fadeStartTime,
+                        fadeStartTime + 0.25f,
+                        elapsed);
+
+                float alpha = Mathf.Lerp(initialTextAlpha, 1f, SmoothEaseOut(fadeProgress));
+
+                SetFieldTextAlpha(fieldIndex, alpha);
+            }
+
+            /*
+             * No fields finalize until finalizationStartDelay
+             * has fully elapsed.
+             */
+            float finalizationElapsed =
+                Mathf.Max(
+                    0f,
+                    elapsed - finalizationStartDelay);
+
             int shouldBeStopped =
                 Mathf.Clamp(
                     Mathf.FloorToInt(
-                        elapsed /
+                        finalizationElapsed /
                         intervalBetweenStops),
                     0,
                     fieldCount);
 
-            while (stoppedFields <
-                   shouldBeStopped)
+            while (stoppedFields < shouldBeStopped)
             {
                 SetFinalField(
                     stoppedFields,
                     situation);
+
+                SetFieldTextAlpha(
+                    stoppedFields,
+                    1f);
 
                 stoppedFields++;
             }
@@ -145,17 +225,112 @@ public class FootballSituationPanel : MonoBehaviour
             yield return null;
         }
 
+        // Guarantee exact final values at the end.
         while (stoppedFields < fieldCount)
         {
             SetFinalField(
                 stoppedFields,
                 situation);
 
+            SetFieldTextAlpha(
+                stoppedFields,
+                1f);
+
             stoppedFields++;
         }
 
+        yield return new WaitForSeconds(finalizationEndDelay);
+
         revealCoroutine = null;
         onFinished?.Invoke();
+    }
+
+    private void SetAllTextAlpha(float alpha)
+    {
+        SetTextAlpha(playerText, alpha);
+        SetTextAlpha(opponentText, alpha);
+
+        SetTextAlpha(playerScoreText, alpha);
+        SetTextAlpha(oppScoreText, alpha);
+
+        SetTextAlpha(quarterText, alpha);
+        SetTextAlpha(clockText, alpha);
+        SetTextAlpha(downText, alpha);
+        SetTextAlpha(yardsToGoText, alpha);
+        SetTextAlpha(yardLineText, alpha);
+    }
+
+    private static void SetTextAlpha(
+        TMP_Text text,
+        float alpha)
+    {
+        if (text != null)
+        {
+            /*
+             * TMP_Text.alpha changes only this text component.
+             * It does not fade the panel, logos, or other UI.
+             */
+            text.alpha = Mathf.Clamp01(alpha);
+        }
+    }
+
+    private static float SmoothEaseOut(float t)
+    {
+        t = Mathf.Clamp01(t);
+
+        return 1f - Mathf.Pow(1f - t, 3f);
+    }
+
+    private void SetFieldTextAlpha(
+    int fieldIndex,
+    float alpha)
+    {
+        alpha = Mathf.Clamp01(alpha);
+
+        switch (fieldIndex)
+        {
+            /*
+             * Opponent/team field.
+             *
+             * Both playerText and opponentText belong to
+             * the first finalized field.
+             */
+            case 0:
+                SetTextAlpha(playerText, alpha);
+                SetTextAlpha(opponentText, alpha);
+                break;
+
+            // Score field.
+            case 1:
+                SetTextAlpha(playerScoreText, alpha);
+                SetTextAlpha(oppScoreText, alpha);
+                break;
+
+            // Quarter field.
+            case 2:
+                SetTextAlpha(quarterText, alpha);
+                break;
+
+            // Clock field.
+            case 3:
+                SetTextAlpha(clockText, alpha);
+                break;
+
+            // Down field.
+            case 4:
+                SetTextAlpha(downText, alpha);
+                break;
+
+            // Yards-to-go field.
+            case 5:
+                SetTextAlpha(yardsToGoText, alpha);
+                break;
+
+            // Yard-line field.
+            case 6:
+                SetTextAlpha(yardLineText, alpha);
+                break;
+        }
     }
 
     private void UpdateRollingFields(
@@ -288,27 +463,29 @@ public class FootballSituationPanel : MonoBehaviour
         }
     }
 
-    private static FootballTeamDefinition GetRandomTeam(
-        FootballTeamDefinition playerTeam,
-        FootballTeamDefinition[] teamBank)
+    private static FootballTeamDefinition GetRandomTeam(FootballTeamDefinition playerTeam, FootballTeamDefinition[] teamBank)
     {
-        if (teamBank == null ||
-            teamBank.Length == 0)
+        if (teamBank == null || teamBank.Length == 0)
         {
-            return teamBank[0];
+            return playerTeam;
         }
 
-        for (int attempt = 0;
-             attempt < 10;
-             attempt++)
+        for (int attempt = 0; attempt < 10; attempt++)
         {
-            return teamBank[
+            FootballTeamDefinition randomTeam =
+                teamBank[
                     UnityEngine.Random.Range(
                         0,
                         teamBank.Length)];
+
+            if (randomTeam != null &&
+                randomTeam != playerTeam)
+            {
+                return randomTeam;
+            }
         }
 
-        return teamBank[0];
+        return playerTeam;
     }
 
     private static string FormatRandomYardLine(
