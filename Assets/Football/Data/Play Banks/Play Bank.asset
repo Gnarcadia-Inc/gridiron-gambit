@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5550d67bff8c641bf9c306ff56d49f8e, type: 3}
+  m_Name: Play Bank
+  m_EditorClassIdentifier: 
+  plays:
+  - play: {fileID: 11400000, guid: 5ee1c97a79ce14c61b6f8466e26c0b31, type: 2}
+    buttonSprite: {fileID: 21300000, guid: 329e30fa53c6241ca893e0ab3d05f211, type: 3}
+    minimumDown: 0
+    maximumDown: 4
+    minimumYardsToGo: 0
+    maximumYardsToGo: 99
+    minimumYardsFromOwnGoal: 0
+    maximumYardsFromOwnGoal: 99
+    minimumQuarter: 0
+    maximumQuarter: 4
+    minimumScoreDifferential: 0
+    maximumScoreDifferential: 100
+    minimumSecondsRemaining: 0
+    maximumSecondsRemaining: 900
+    baseWeight: 0
+  - play: {fileID: 11400000, guid: c513973754af24983ae6cf09a877d189, type: 2}
+    buttonSprite: {fileID: 21300000, guid: 7e5da82901fcf453082a2c0fb8d6605d, type: 3}
+    minimumDown: 0
+    maximumDown: 4
+    minimumYardsToGo: 0
+    maximumYardsToGo: 99
+    minimumYardsFromOwnGoal: 0
+    maximumYardsFromOwnGoal: 99
+    minimumQuarter: 0
+    maximumQuarter: 4
+    minimumScoreDifferential: 0
+    maximumScoreDifferential: 100
+    minimumSecondsRemaining: 0
+    maximumSecondsRemaining: 900
+    baseWeight: 0
+  - play: {fileID: 11400000, guid: 2b3bf4bc451324062891c6a321edf7e9, type: 2}
+    buttonSprite: {fileID: 21300000, guid: 6cfc7f3784a64412aab2e7a4d33268fa, type: 3}
+    minimumDown: 0
+    maximumDown: 4
+    minimumYardsToGo: 0
+    maximumYardsToGo: 99
+    minimumYardsFromOwnGoal: 0
+    maximumYardsFromOwnGoal: 99
+    minimumQuarter: 0
+    maximumQuarter: 4
+    minimumScoreDifferential: 0
+    maximumScoreDifferential: 100
+    minimumSecondsRemaining: 0
+    maximumSecondsRemaining: 900
+    baseWeight: 0
+  - play: {fileID: 11400000, guid: 1eea65bbc508943e9b9e6d674a12b973, type: 2}
+    buttonSprite: {fileID: 21300000, guid: 80f90f7072d414cdd9ba3efdc36ccf3d, type: 3}
+    minimumDown: 0
+    maximumDown: 4
+    minimumYardsToGo: 0
+    maximumYardsToGo: 99
+    minimumYardsFromOwnGoal: 0
+    maximumYardsFromOwnGoal: 99
+    minimumQuarter: 0
+    maximumQuarter: 4
+    minimumScoreDifferential: 0
+    maximumScoreDifferential: 100
+    minimumSecondsRemaining: 0
+    maximumSecondsRemaining: 900
+    baseWeight: 0
