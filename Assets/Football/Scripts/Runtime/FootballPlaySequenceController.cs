@@ -74,6 +74,16 @@ public class FootballPlaySequenceController : MonoBehaviour
     [SerializeField]
     private float ballLobHeight = 4f;
 
+    [Header("Quarterback Scramble")]
+
+    [SerializeField]
+    private List<FootballRoute> scrambleRoutes = new();
+
+    [SerializeField]
+    private float scrambleRouteDelaySeconds = 0f;
+
+    public UnityEvent onScramble;
+
     [SerializeField]
     private float runAfterCatchSpeedYardsPerSecond = 7f;
 
@@ -1664,12 +1674,15 @@ public class FootballPlaySequenceController : MonoBehaviour
         pendingThrowTarget = null;
         receiverChoiceCoroutine = null;
 
-        /*
-         * Throw only after the full selection period ends.
-         */
         if (finalSelection != null)
         {
             ThrowToReceiver(finalSelection);
+        }
+        else if (selectedPlay != null &&
+                 selectedPlay.playType ==
+                 FootballPlayType.Pass)
+        {
+            BeginQuarterbackScramble();
         }
         else
         {
@@ -1836,7 +1849,7 @@ public class FootballPlaySequenceController : MonoBehaviour
 
     public void RegisterTackle(
     FootballDefenderController defender,
-    FootballReceiverTarget ballCarrier)
+    FootballRouteRunner ballCarrier)
     {
         if (playIsDead || defender == null || ballCarrier == null)
         {
@@ -1851,7 +1864,7 @@ public class FootballPlaySequenceController : MonoBehaviour
 
         defender.StopCoverage();
 
-        ballCarrier.RouteRunner?.StopMovement();
+        ballCarrier.StopMovement();
 
         StopAllPlayerMovement();
         RestoreNormalTime();
@@ -2193,6 +2206,117 @@ public class FootballPlaySequenceController : MonoBehaviour
 
         sacker.AssignBulldozeTarget(
             nearestLineman);
+    }
+
+    private void BeginQuarterbackScramble()
+    {
+        if (playIsDead ||
+            ballHasBeenThrown ||
+            handoffCompleted)
+        {
+            return;
+        }
+
+        if (selectedPlay == null ||
+            selectedPlay.playType !=
+            FootballPlayType.Pass)
+        {
+            return;
+        }
+
+        if (quarterbackObject == null ||
+            quarterbackRunner == null)
+        {
+            Debug.LogWarning(
+                "Cannot begin scramble because the " +
+                "quarterback is missing.");
+
+            return;
+        }
+
+        FootballRoute scrambleRoute =
+            SelectRandomScrambleRoute();
+
+        if (scrambleRoute == null)
+        {
+            Debug.LogWarning(
+                "Cannot begin scramble because no valid " +
+                "scramble routes are assigned.");
+
+            return;
+        }
+
+        quarterbackRunner.StopMovement();
+
+        quarterbackRunner.SetHasBall(true);
+
+        quarterbackRunner.PlayerAnimator.Scramble();
+
+        if (targetCamera != null)
+        {
+            targetCamera.SetTarget(
+                quarterbackObject.transform,
+                receiverCameraOffset);
+        }
+
+        quarterbackRunner.StartPreparedRoute(
+            scrambleRoute,
+            playOrigin,
+            scrambleRouteDelaySeconds);
+
+        onScramble?.Invoke();
+
+        Debug.Log(
+            $"Quarterback scramble started using " +
+            $"route '{scrambleRoute.routeName}'.");
+    }
+
+    private FootballRoute SelectRandomScrambleRoute()
+    {
+        if (scrambleRoutes == null ||
+            scrambleRoutes.Count == 0)
+        {
+            return null;
+        }
+
+        int validRouteCount = 0;
+
+        foreach (FootballRoute route
+                 in scrambleRoutes)
+        {
+            if (route != null)
+            {
+                validRouteCount++;
+            }
+        }
+
+        if (validRouteCount == 0)
+        {
+            return null;
+        }
+
+        int selectedValidIndex =
+            Random.Range(
+                0,
+                validRouteCount);
+
+        foreach (FootballRoute route
+                 in scrambleRoutes)
+        {
+            if (route == null)
+            {
+                continue;
+            }
+
+            if (selectedValidIndex == 0)
+            {
+                return route;
+            }
+
+            selectedValidIndex--;
+        }
+
+        return null;
     }
 }
 

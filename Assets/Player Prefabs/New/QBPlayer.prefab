@@ -325,6 +325,8 @@ MonoBehaviour:
   characterController: {fileID: 2562003784098810241}
   rotationSpeed: 720
   stoppingDistance: 0.05
+  defaultReceiverSpeed: 1.5
+  playerAnimator: {fileID: 4269665583868400165}
 --- !u!136 &1278954074218972052
 CapsuleCollider:
   m_ObjectHideFlags: 0

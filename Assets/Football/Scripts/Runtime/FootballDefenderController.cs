@@ -431,7 +431,7 @@ public class FootballDefenderController : MonoBehaviour
         StopCoverage();
         offensivePlayer.RouteRunner.StopMovement();
 
-        sequenceController.RegisterTackle(this, offensivePlayer);
+        sequenceController.RegisterTackle(this, offensivePlayer.RouteRunner);
     }
 
     public Vector3 PredictPositionAtTime(float seconds)

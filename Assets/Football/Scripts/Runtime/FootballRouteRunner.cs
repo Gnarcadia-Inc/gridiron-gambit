@@ -31,6 +31,12 @@ public class FootballRouteRunner : MonoBehaviour
 
     public event System.Action RouteCompleted;
 
+    [SerializeField]
+    private FootballPlayerAnimator playerAnimator;
+
+    public FootballPlayerAnimator PlayerAnimator =>
+    playerAnimator;
+
     private void Reset()
     {
         characterController =

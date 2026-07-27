@@ -136,4 +136,9 @@ public class FootballPlayerAnimator: MonoBehaviour
     {
         animator.SetTrigger("SackTrigger");
     }
+
+    public void Scramble()
+    {
+        animator.SetTrigger("ScrambleTrigger");
+    }
 }
