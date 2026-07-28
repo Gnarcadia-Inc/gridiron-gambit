@@ -646,6 +646,7 @@ public class FootballPlaySequenceController : MonoBehaviour
                 routeRunner.PrepareForPlay(playOrigin, entry.startingOffsetYards);
             }
 
+
             int offenseLayer = LayerMask.NameToLayer(offenseLayerName);
             SetPlayerRootLayer(playerObject, offenseLayer);
 

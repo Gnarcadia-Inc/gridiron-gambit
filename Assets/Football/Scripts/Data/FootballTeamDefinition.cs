@@ -25,6 +25,10 @@ public class FootballTeamDefinition : ScriptableObject
 
     [Header("Optional UI")]
 
-    public Color primaryColor = Color.white;
-    public Color secondaryColor = Color.black;
+    public Color fieldFoamColour;
+    public Color fieldRowsColour;
+    public Color fieldSeatBackColour;
+    public Color fieldSeatBottomColour;
+    public Color fieldStandsColour;
+    public Color fieldStandsAltColour;
 }

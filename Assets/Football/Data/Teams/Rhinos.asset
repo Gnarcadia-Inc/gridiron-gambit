@@ -18,5 +18,9 @@ MonoBehaviour:
   offensiveJerseyMaterial: {fileID: 2100000, guid: 142bc18aedb8c4ac294d3c31fb814add, type: 2}
   defensiveJerseyMaterial: {fileID: 2100000, guid: 142bc18aedb8c4ac294d3c31fb814add, type: 2}
   fieldSprite: {fileID: 21300000, guid: 771cf0bf5bfbe453ea8696715a9c1f8a, type: 3}
-  primaryColor: {r: 1, g: 1, b: 1, a: 1}
-  secondaryColor: {r: 0, g: 0, b: 0, a: 1}
+  fieldFoamColour: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 0}
+  fieldRowsColour: {r: 0.28315237, g: 0.38694945, b: 0.5943396, a: 0}
+  fieldSeatBackColour: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0}
+  fieldSeatBottomColour: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 0}
+  fieldStandsColour: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0}
+  fieldStandsAltColour: {r: 0.5754717, g: 0.5754717, b: 0.5754717, a: 0}

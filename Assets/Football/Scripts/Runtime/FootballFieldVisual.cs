@@ -5,6 +5,19 @@ public class FootballFieldVisual : MonoBehaviour
     [SerializeField]
     private SpriteRenderer fieldSpriteRenderer;
 
+    [SerializeField]
+    private Material foamMaterial;
+    [SerializeField]
+    private Material rowsMaterial;
+    [SerializeField]
+    private Material seatBackMaterial;
+    [SerializeField]
+    private Material seatBottomMaterial;
+    [SerializeField]
+    private Material standsMaterial;
+    [SerializeField]
+    private Material standsAltMaterial;
+
     private void Reset()
     {
         fieldSpriteRenderer =
@@ -51,5 +64,12 @@ public class FootballFieldVisual : MonoBehaviour
 
         fieldSpriteRenderer.sprite =
             team.fieldSprite;
+
+        foamMaterial.color = team.fieldFoamColour;
+        rowsMaterial.color = team.fieldRowsColour;
+        seatBackMaterial.color = team.fieldSeatBackColour;
+        seatBottomMaterial.color = team.fieldSeatBottomColour;
+        standsMaterial.color = team.fieldStandsColour;
+        standsAltMaterial.color = team.fieldStandsAltColour;
     }
 }
