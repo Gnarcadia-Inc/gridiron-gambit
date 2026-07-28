@@ -253,6 +253,11 @@ SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: -6161448157782799470, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
   m_PrefabInstance: {fileID: 9049515820064004573}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &6807200599633290301 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2589110534343671264, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
+  m_PrefabInstance: {fileID: 9049515820064004573}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7215886436000245269 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
@@ -327,6 +332,7 @@ MonoBehaviour:
   stoppingDistance: 0.05
   defaultReceiverSpeed: 1.5
   playerAnimator: {fileID: 4269665583868400165}
+  footballReceiverTarget: {fileID: 0}
 --- !u!136 &1278954074218972052
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -364,6 +370,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jerseyRenderers:
   - {fileID: 6334441770841952847}
+  - {fileID: 6807200599633290301}
   jerseyMaterialIndex: 0
 --- !u!114 &4269665583868400165
 MonoBehaviour:

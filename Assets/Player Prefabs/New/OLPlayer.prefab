@@ -218,6 +218,11 @@ SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: -6161448157782799470, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
   m_PrefabInstance: {fileID: 7960675301499905936}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &5590196745597753968 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2589110534343671264, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
+  m_PrefabInstance: {fileID: 7960675301499905936}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7114396394444397249 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 57b13c1e46eb74c93ae631e862ce4d87, type: 3}
@@ -366,6 +371,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jerseyRenderers:
   - {fileID: 4901081369217575938}
+  - {fileID: 5590196745597753968}
   jerseyMaterialIndex: 0
 --- !u!114 &3417548987614766558
 MonoBehaviour:

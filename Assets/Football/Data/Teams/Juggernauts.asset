@@ -15,8 +15,8 @@ MonoBehaviour:
   teamName: Juggernauts
   abbreviation: JUG
   menuLogo: {fileID: 21300000, guid: 3fb2dd232507d41d3a8f463d9a8edebe, type: 3}
-  offensiveJerseyMaterial: {fileID: 2100000, guid: 2dce05a717430415c8eb7286ba5f20d5, type: 2}
-  defensiveJerseyMaterial: {fileID: 2100000, guid: 2dce05a717430415c8eb7286ba5f20d5, type: 2}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 7533aafa1f29d476bb20f89282c0cfb3, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 7533aafa1f29d476bb20f89282c0cfb3, type: 2}
   fieldSprite: {fileID: 21300000, guid: e0e7624d296da4320a41676ae692501c, type: 3}
   primaryColor: {r: 1, g: 1, b: 1, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 1}

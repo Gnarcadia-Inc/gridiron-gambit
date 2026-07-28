@@ -15,8 +15,8 @@ MonoBehaviour:
   teamName: Rhinos
   abbreviation: RHN
   menuLogo: {fileID: 21300000, guid: fdac5dd24b85846dfaa9f6f1ef0e8ed2, type: 3}
-  offensiveJerseyMaterial: {fileID: 2100000, guid: 62660025db09b4d92946455f60c005cb, type: 2}
-  defensiveJerseyMaterial: {fileID: 2100000, guid: 62660025db09b4d92946455f60c005cb, type: 2}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 142bc18aedb8c4ac294d3c31fb814add, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 142bc18aedb8c4ac294d3c31fb814add, type: 2}
   fieldSprite: {fileID: 21300000, guid: 771cf0bf5bfbe453ea8696715a9c1f8a, type: 3}
   primaryColor: {r: 1, g: 1, b: 1, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 1}

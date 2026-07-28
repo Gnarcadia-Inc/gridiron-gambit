@@ -15,8 +15,8 @@ MonoBehaviour:
   teamName: Mambas
   abbreviation: MMB
   menuLogo: {fileID: 21300000, guid: 92e9f7fb08dfb48409928a8aca963c18, type: 3}
-  offensiveJerseyMaterial: {fileID: 2100000, guid: 293de5bf1f0a546519a7aba687fb09a4, type: 2}
-  defensiveJerseyMaterial: {fileID: 2100000, guid: 293de5bf1f0a546519a7aba687fb09a4, type: 2}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 1b29b376a79c746deae57cf0d00ee134, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 1b29b376a79c746deae57cf0d00ee134, type: 2}
   fieldSprite: {fileID: 21300000, guid: 80ce9c2b6dfb0411b925cbda56f4df3b, type: 3}
   primaryColor: {r: 1, g: 1, b: 1, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 1}

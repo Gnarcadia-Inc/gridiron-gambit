@@ -15,8 +15,8 @@ MonoBehaviour:
   teamName: Platypi
   abbreviation: PLT
   menuLogo: {fileID: 21300000, guid: 0d6507071c8aa4c8893a2bca88c6dd0c, type: 3}
-  offensiveJerseyMaterial: {fileID: 2100000, guid: ac35d620f5a854619bfc441a2462152c, type: 2}
-  defensiveJerseyMaterial: {fileID: 2100000, guid: ac35d620f5a854619bfc441a2462152c, type: 2}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 1d4d73162a23e4164be6bda3016e7d45, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 1d4d73162a23e4164be6bda3016e7d45, type: 2}
   fieldSprite: {fileID: 21300000, guid: 922d3649d22a8442391248ab0a5f5cfc, type: 3}
   primaryColor: {r: 1, g: 1, b: 1, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 1}

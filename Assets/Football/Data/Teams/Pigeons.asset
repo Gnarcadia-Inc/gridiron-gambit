@@ -15,8 +15,8 @@ MonoBehaviour:
   teamName: PIgeons
   abbreviation: PGN
   menuLogo: {fileID: 21300000, guid: 591a960358e47467a9f00c9c1aff1c7e, type: 3}
-  offensiveJerseyMaterial: {fileID: 2100000, guid: 4b707383f80064a6ebee7c0a95379874, type: 2}
-  defensiveJerseyMaterial: {fileID: 2100000, guid: 4b707383f80064a6ebee7c0a95379874, type: 2}
+  offensiveJerseyMaterial: {fileID: 2100000, guid: 515ea636a6dc44ede8b06ed1762a6f11, type: 2}
+  defensiveJerseyMaterial: {fileID: 2100000, guid: 515ea636a6dc44ede8b06ed1762a6f11, type: 2}
   fieldSprite: {fileID: 21300000, guid: 96f61e0d8f31047f697e44bc2704b843, type: 3}
   primaryColor: {r: 1, g: 1, b: 1, a: 1}
   secondaryColor: {r: 0, g: 0, b: 0, a: 1}
