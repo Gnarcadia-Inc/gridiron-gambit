@@ -87,6 +87,15 @@ public class FootballSituationPanel : MonoBehaviour
         SetAllTextAlpha(initialTextAlpha);
     }
 
+    public void ResetForNewSituation()
+    {
+        StopAllCoroutines();
+
+        //ClearDisplayedSituation();
+
+        //gameObject.SetActive(false);
+    }
+
     public void Reveal(
         FootballGameSituation situation,
         FootballTeamDefinition[] teamBank,

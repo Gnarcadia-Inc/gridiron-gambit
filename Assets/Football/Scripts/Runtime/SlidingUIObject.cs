@@ -61,6 +61,8 @@ public class SlidingUIObject : MonoBehaviour
 
     public IEnumerator ShowAndWait()
     {
+        gameObject.SetActive(true);
+
         yield return AnimateRoutine(
             shownAnchoredPosition);
     }
@@ -69,6 +71,19 @@ public class SlidingUIObject : MonoBehaviour
     {
         yield return AnimateRoutine(
             hiddenAnchoredPosition);
+    }
+
+    public void ResetImmediately()
+    {
+        StopAllCoroutines();
+
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition =
+                hiddenAnchoredPosition;
+        }
+
+        gameObject.SetActive(false);
     }
 
     private void AnimateTo(

@@ -10,8 +10,26 @@ public enum FootballPlayResult
     Interception,
     Run,
     Tackle,
-    Sack
+    Sack,
+    Touchdown
 }
+
+[System.Serializable]
+public class FootballPlayOutcome
+{
+    public FootballPlayResult result;
+
+    public float yards;
+
+    public OffensiveRole ballCarrierRole;
+
+    public bool wasPass;
+    public bool wasRun;
+    public bool wasScramble;
+}
+
+[System.Serializable]
+public class FootballPlayOutcomeEvent : UnityEngine.Events.UnityEvent<FootballPlayOutcome> { }
 
 public class FootballPlaySequenceController : MonoBehaviour
 {
@@ -233,6 +251,30 @@ public class FootballPlaySequenceController : MonoBehaviour
 
     public UnityEngine.Events.UnityEvent onSack;
 
+    [Header("Final Play Outcome")]
+
+    [SerializeField]
+    private FootballPlayOutcomeEvent onFinalOutcome;
+
+    private FootballPlayOutcome finalOutcome;
+
+    public FootballPlayOutcome FinalOutcome =>
+        finalOutcome;
+
+    private bool passWasCompleted;
+    private bool runWasStarted;
+    private bool quarterbackIsScrambling;
+
+    private OffensiveRole activeBallCarrierRole = OffensiveRole.Quarterback;
+
+    [Header("Touchdown")]
+    [SerializeField]
+    private Transform opponentGoalLineReference;
+    public UnityEvent onTouchdown;
+
+    [SerializeField]
+    private FootballTouchdownZone opponentTouchdownZone;
+
     private DefensiveFrontType ResolveDefensiveFront()
     {
         if (!randomlyChooseDefensiveFront)
@@ -306,6 +348,9 @@ public class FootballPlaySequenceController : MonoBehaviour
             return;
         }
 
+        passWasCompleted = true;
+        activeBallCarrierRole = receiver.Role;
+
         receiver.ReceiveBall(
             ball,
             playOrigin,
@@ -377,6 +422,9 @@ public class FootballPlaySequenceController : MonoBehaviour
             postSnapDecisionCoroutine = null;
         }
 
+        passWasCompleted = false;
+        runWasStarted = false;
+        quarterbackIsScrambling = false;
         handoffCompleted = false;
         runBallCarrier = null;
         receiverChoiceIsOpen = false;
@@ -384,6 +432,8 @@ public class FootballPlaySequenceController : MonoBehaviour
         pendingThrowTarget = null;
         playIsDead = false;
         runtimeDefenders.Clear();
+
+        activeBallCarrierRole = OffensiveRole.Quarterback;
 
         RestoreNormalTime();
 
@@ -1331,14 +1381,6 @@ public class FootballPlaySequenceController : MonoBehaviour
             return;
         }
 
-        playIsDead = true;
-
-        receiverSelectionPanel.Hide();
-
-        RestoreNormalTime();
-
-        StopAllPlayerMovement();
-
         FootballPlayerAnimator quarterbackAnimator = quarterbackObject.GetComponent<FootballPlayerAnimator>();
 
         if (quarterbackAnimator == null)
@@ -1357,7 +1399,10 @@ public class FootballPlaySequenceController : MonoBehaviour
         }
 
         onSack?.Invoke();
-        onPlayEnded?.Invoke();
+
+        Vector3 sackPosition = quarterbackObject != null ? quarterbackObject.transform.position : playOrigin.position;
+
+        FinishPlay(FootballPlayResult.Sack, sackPosition, OffensiveRole.Quarterback, false, false, false);
     }
 
     private void ResolveRunBallCarrier()
@@ -1599,6 +1644,9 @@ public class FootballPlaySequenceController : MonoBehaviour
 
         FootballReceiverTarget receiver = ballCarrier.receiver;
 
+        runWasStarted = true;
+        activeBallCarrierRole = receiver.Role;
+
         Transform catchPoint =
             receiver.CatchPoint != null
                 ? receiver.CatchPoint
@@ -1817,14 +1865,6 @@ public class FootballPlaySequenceController : MonoBehaviour
             return;
         }
 
-        playIsDead = true;
-
-        StopAllPlayerMovement();
-
-        receiverSelectionPanel.Hide();
-
-        RestoreNormalTime();
-
         if (targetCamera != null)
         {
             targetCamera.SetTarget(
@@ -1841,10 +1881,12 @@ public class FootballPlaySequenceController : MonoBehaviour
         }
 
         onInterception?.Invoke();
-        onPlayEnded?.Invoke();
 
-        Debug.Log(
-            $"Interception by {defender.name}.");
+        Debug.Log($"Interception by {defender.name}.");
+
+        Vector3 interceptionPosition = defender.transform.position;
+
+        FinishPlay(FootballPlayResult.Interception, interceptionPosition, OffensiveRole.Quarterback, true, false, false);
     }
 
     public void RegisterTackle(
@@ -1856,36 +1898,229 @@ public class FootballPlaySequenceController : MonoBehaviour
             return;
         }
 
-        playIsDead = true;
+        FootballPlayResult result;
+
+        bool wasPass =
+            passWasCompleted;
+
+        bool wasRun =
+            runWasStarted ||
+            handoffCompleted;
+
+        bool wasScramble =
+            quarterbackIsScrambling;
+
+        if (passWasCompleted)
+        {
+            result =
+                FootballPlayResult.Completion;
+        }
+        else if (runWasStarted ||
+                 handoffCompleted ||
+                 quarterbackIsScrambling)
+        {
+            result =
+                FootballPlayResult.Run;
+        }
+        else
+        {
+            result =
+                FootballPlayResult.Tackle;
+        }
 
         defender.PlayerAnimator?.TriggerTackle();
-
         ballCarrier.PlayerAnimator?.TriggerTackled();
 
         defender.StopCoverage();
-
         ballCarrier.StopMovement();
-
-        StopAllPlayerMovement();
-        RestoreNormalTime();
-
-        if (ballArrivalAnimationCoroutine != null)
-        {
-            StopCoroutine(
-                ballArrivalAnimationCoroutine);
-
-            ballArrivalAnimationCoroutine = null;
-        }
-
-        receiverSelectionPanel.Hide();
 
         if (targetCamera != null)
         {
-            targetCamera.SetTarget(ballCarrier.transform, receiverCameraOffset);
+            targetCamera.SetTarget(
+                ballCarrier.transform,
+                receiverCameraOffset);
         }
 
         onTackle?.Invoke();
-        onPlayEnded?.Invoke();
+
+        FinishPlay(
+            result,
+            ballCarrier.transform.position,
+            ballCarrier.Role,
+            wasPass,
+            wasRun,
+            wasScramble);
+    }
+
+    public void RegisterIncompletion(
+    Vector3 ballEndPosition)
+    {
+        if (playIsDead ||
+            !ballHasBeenThrown)
+        {
+            return;
+        }
+
+        FinishPlay(FootballPlayResult.Incompletion, playOrigin != null ? playOrigin.position : ballEndPosition, OffensiveRole.Quarterback, true, false, false);
+    }
+
+    public void RegisterTouchdown(FootballRouteRunner ballCarrierRunner)
+    {
+        if (playIsDead ||
+            ballCarrierRunner == null ||
+            !ballCarrierRunner.HasBall)
+        {
+            return;
+        }
+
+        Transform ballCarrierTransform =
+            ballCarrierRunner.transform;
+
+        OffensiveRole ballCarrierRole =
+            ResolveBallCarrierRole(
+                ballCarrierRunner);
+
+        bool wasScramble =
+            quarterbackIsScrambling;
+
+        bool wasRun =
+            handoffCompleted ||
+            runWasStarted ||
+            wasScramble;
+
+        bool wasPass =
+            passWasCompleted &&
+            !wasRun;
+
+        ballCarrierRunner.StopMovement();
+
+        FootballPlayerAnimator playerAnimator =
+            ballCarrierRunner.GetComponentInChildren<
+                FootballPlayerAnimator>(true);
+
+        playerAnimator?.Touchdown();
+
+        if (targetCamera != null)
+        {
+            targetCamera.SetTarget(
+                ballCarrierTransform,
+                receiverCameraOffset);
+        }
+
+        float touchdownYards =
+            CalculateTouchdownYards();
+
+        onTouchdown?.Invoke();
+
+        FinishPlay(
+            FootballPlayResult.Touchdown,
+            ballCarrierTransform.position,
+            ballCarrierRole,
+            wasPass,
+            wasRun,
+            wasScramble);
+    }
+
+    private OffensiveRole ResolveBallCarrierRole(
+    FootballRouteRunner runner)
+    {
+        if (runner == null)
+        {
+            return OffensiveRole.Quarterback;
+        }
+
+        if (runner == quarterbackRunner)
+        {
+            return OffensiveRole.Quarterback;
+        }
+
+        FootballOffensivePlayerController
+            offensiveController =
+                runner.GetComponent<
+                    FootballOffensivePlayerController>();
+
+        if (offensiveController == null)
+        {
+            offensiveController =
+                runner.GetComponentInParent<
+                    FootballOffensivePlayerController>();
+        }
+
+        if (offensiveController != null)
+        {
+            return offensiveController.Role;
+        }
+
+        foreach (RuntimeReceiverAssignment receiver in runtimeReceivers)
+        {
+            if (receiver == null ||
+                receiver.runner != runner)
+            {
+                continue;
+            }
+
+            return receiver.assignment.role;
+        }
+
+        Debug.LogWarning(
+            "Could not resolve touchdown ball-carrier role. " +
+            "Defaulting to Quarterback.");
+
+        return OffensiveRole.Quarterback;
+    }
+
+    private float CalculateTouchdownYards()
+    {
+        if (playOrigin == null ||
+            opponentGoalLineReference == null)
+        {
+            Debug.LogWarning(
+                "Cannot calculate touchdown yardage because " +
+                "the play origin or opponent goal-line " +
+                "reference is missing.");
+
+            return 0f;
+        }
+
+        Vector3 displacement =
+            opponentGoalLineReference.position -
+            playOrigin.position;
+
+        Vector3 offensiveForward =
+            playOrigin.forward;
+
+        offensiveForward.y = 0f;
+
+        if (offensiveForward.sqrMagnitude <=
+            0.0001f)
+        {
+            return 0f;
+        }
+
+        offensiveForward.Normalize();
+
+        float distanceInUnits =
+            Vector3.Dot(
+                displacement,
+                offensiveForward);
+
+        float oneYardInUnits =
+            FootballUnits.YardsToUnits(1f);
+
+        if (Mathf.Abs(oneYardInUnits) <=
+            0.0001f)
+        {
+            return 0f;
+        }
+
+        float yards =
+            distanceInUnits /
+            oneYardInUnits;
+
+        yards = Mathf.Max(0f, yards);
+
+        return Mathf.Round(
+            yards * 10f) / 10f;
     }
 
     private void StopAllPlayerMovement()
@@ -2246,6 +2481,10 @@ public class FootballPlaySequenceController : MonoBehaviour
             return;
         }
 
+        quarterbackIsScrambling = true;
+        runWasStarted = true;
+        activeBallCarrierRole = OffensiveRole.Quarterback;
+
         quarterbackRunner.StopMovement();
 
         quarterbackRunner.SetHasBall(true);
@@ -2317,6 +2556,108 @@ public class FootballPlaySequenceController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void FinishPlay(
+    FootballPlayResult result,
+    Vector3 finalWorldPosition,
+    OffensiveRole ballCarrierRole,
+    bool wasPass,
+    bool wasRun,
+    bool wasScramble)
+    {
+        if (playIsDead)
+        {
+            return;
+        }
+
+        playIsDead = true;
+
+        float finalYards =
+            CalculateYardsFromLineOfScrimmage(
+                finalWorldPosition);
+
+        finalOutcome =
+            new FootballPlayOutcome
+            {
+                result = result,
+                yards = finalYards,
+                ballCarrierRole = ballCarrierRole,
+                wasPass = wasPass,
+                wasRun = wasRun,
+                wasScramble = wasScramble
+            };
+
+        if (receiverChoiceCoroutine != null)
+        {
+            StopCoroutine(receiverChoiceCoroutine);
+            receiverChoiceCoroutine = null;
+        }
+
+        if (postSnapDecisionCoroutine != null)
+        {
+            StopCoroutine(postSnapDecisionCoroutine);
+            postSnapDecisionCoroutine = null;
+        }
+
+        if (ballArrivalAnimationCoroutine != null)
+        {
+            StopCoroutine(ballArrivalAnimationCoroutine);
+            ballArrivalAnimationCoroutine = null;
+        }
+
+        receiverChoiceIsOpen = false;
+        pendingThrowTarget = null;
+
+        receiverSelectionPanel?.Hide();
+
+        RestoreNormalTime();
+        StopAllPlayerMovement();
+
+        onFinalOutcome?.Invoke(finalOutcome);
+        onPlayEnded?.Invoke();
+    }
+
+    private float CalculateYardsFromLineOfScrimmage(
+    Vector3 finalWorldPosition)
+    {
+        if (playOrigin == null)
+        {
+            return 0f;
+        }
+
+        Vector3 displacement =
+            finalWorldPosition -
+            playOrigin.position;
+
+        /*
+         * Projects the final position onto the offense's forward
+         * field direction.
+         *
+         * Lateral movement does not count as yardage.
+         */
+        float forwardUnits =
+            Vector3.Dot(
+                displacement,
+                playOrigin.forward);
+
+        float oneYardInUnits =
+            FootballUnits.YardsToUnits(1f);
+
+        if (Mathf.Abs(oneYardInUnits) <=
+            0.0001f)
+        {
+            return 0f;
+        }
+
+        float yards =
+            forwardUnits /
+            oneYardInUnits;
+
+        /*
+         * Prevent tiny floating-point values such as 4.999997.
+         */
+        return Mathf.Round(yards * 10f) / 10f;
     }
 }
 

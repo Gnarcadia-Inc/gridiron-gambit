@@ -307,6 +307,7 @@ MonoBehaviour:
   stoppingDistance: 0.05
   defaultReceiverSpeed: 1.5
   playerAnimator: {fileID: 3417548987614766558}
+  footballReceiverTarget: {fileID: 8976429765037261497}
 --- !u!136 &7862860434116306231
 CapsuleCollider:
   m_ObjectHideFlags: 0

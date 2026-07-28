@@ -141,4 +141,9 @@ public class FootballPlayerAnimator: MonoBehaviour
     {
         animator.SetTrigger("ScrambleTrigger");
     }
+
+    public void Touchdown()
+    {
+        animator.SetTrigger("TouchdownTrigger");
+    }
 }

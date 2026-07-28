@@ -91,6 +91,18 @@ public class FootballGameSetupController : MonoBehaviour
     [SerializeField]
     private PregameMenuAnimation pregameMenuAnimation;
 
+    private Coroutine setupCoroutine;
+    private Coroutine confirmPlayCoroutine;
+    private bool restartInProgress;
+    public bool RestartInProgress =>
+       restartInProgress;
+
+    [SerializeField]
+    private GameObject endScreen;
+
+    private Coroutine returnToMenuCoroutine;
+    private bool returnToMenuInProgress;
+
     private void Awake()
     {
         Time.timeScale = 1f;
@@ -116,9 +128,7 @@ public class FootballGameSetupController : MonoBehaviour
 
     public void SelectPreviousTeam()
     {
-        if (setupInProgress ||
-            teams == null ||
-            teams.Length == 0)
+        if (setupInProgress || restartInProgress || returnToMenuInProgress || teams == null || teams.Length == 0)
         {
             return;
         }
@@ -135,9 +145,7 @@ public class FootballGameSetupController : MonoBehaviour
 
     public void SelectNextTeam()
     {
-        if (setupInProgress ||
-            teams == null ||
-            teams.Length == 0)
+        if (setupInProgress || restartInProgress || returnToMenuInProgress || teams == null || teams.Length == 0)
         {
             return;
         }
@@ -154,20 +162,20 @@ public class FootballGameSetupController : MonoBehaviour
 
     public void StartGameSetup()
     {
-        if (setupInProgress ||
-            SelectedTeam == null)
+        if (setupInProgress || restartInProgress || returnToMenuInProgress || SelectedTeam == null)
         {
             return;
         }
 
-        StartCoroutine(
-            SetupRoutine());
+        setupCoroutine = StartCoroutine(SetupRoutine());
     }
 
     public void SelectPlay(
-        FootballPlay selectedPlay)
+    FootballPlay selectedPlay)
     {
         if (!setupInProgress ||
+            restartInProgress ||
+            returnToMenuInProgress ||
             playHasBeenSelected ||
             selectedPlay == null)
         {
@@ -176,9 +184,10 @@ public class FootballGameSetupController : MonoBehaviour
 
         playHasBeenSelected = true;
 
-        StartCoroutine(
-            ConfirmPlayRoutine(
-                selectedPlay));
+        confirmPlayCoroutine =
+            StartCoroutine(
+                ConfirmPlayRoutine(
+                    selectedPlay));
     }
 
     private IEnumerator SetupRoutine()
@@ -197,18 +206,24 @@ public class FootballGameSetupController : MonoBehaviour
 
         bool revealFinished = false;
 
-        pregameMenuAnimation.PlayExitAnimation(() =>
+        if (restartInProgress)
         {
             sitchPanel.Reveal(
-                currentSituation,
-                teams,
-                () => revealFinished = true);
-        });
-
-        //sitchPanel.Reveal(
-        //    currentSituation,
-        //    teams,
-        //    () => revealFinished = true);
+                    currentSituation,
+                    teams,
+                    () => revealFinished = true);
+        }
+        else
+        {
+            pregameMenuAnimation.PlayExitAnimation(
+            () =>
+            {
+                sitchPanel.Reveal(
+                    currentSituation,
+                    teams,
+                    () => revealFinished = true);
+            });
+        }
 
         while (!revealFinished)
         {
@@ -229,10 +244,12 @@ public class FootballGameSetupController : MonoBehaviour
             yield return
                 playSelectionSlider.ShowAndWait();
         }
+
+        setupCoroutine = null;
     }
 
     private IEnumerator ConfirmPlayRoutine(
-        FootballPlay selectedPlay)
+    FootballPlay selectedPlay)
     {
         DisablePlayButtons();
 
@@ -248,6 +265,7 @@ public class FootballGameSetupController : MonoBehaviour
         sequenceController.StartSelectedPlay();
 
         setupInProgress = false;
+        confirmPlayCoroutine = null;
     }
 
     private void ApplyGameSituation()
@@ -359,6 +377,182 @@ public class FootballGameSetupController : MonoBehaviour
         foreach (PlaySelectionButton playButton
                  in playButtons)
         {
+            Button button =
+                playButton.GetComponent<Button>();
+
+            if (button != null)
+            {
+                button.interactable = false;
+            }
+        }
+    }
+
+    public void ReturnToMainMenu()
+    {
+        if (returnToMenuInProgress || restartInProgress || setupInProgress)
+        {
+            return;
+        }
+
+        returnToMenuCoroutine = StartCoroutine(ReturnToMainMenuRoutine());
+    }
+
+    private IEnumerator ReturnToMainMenuRoutine()
+    {
+        returnToMenuInProgress = true;
+
+        Time.timeScale = 1f;
+
+        if (setupCoroutine != null)
+        {
+            StopCoroutine(setupCoroutine);
+            setupCoroutine = null;
+        }
+
+        if (confirmPlayCoroutine != null)
+        {
+            StopCoroutine(confirmPlayCoroutine);
+            confirmPlayCoroutine = null;
+        }
+
+        setupInProgress = false;
+        playHasBeenSelected = false;
+        restartInProgress = false;
+
+        if (sequenceController != null)
+        {
+            sequenceController.ResetCurrentPlay();
+            sequenceController.SetSelectedPlay(null);
+        }
+
+        if (playSelectionSlider != null)
+        {
+            playSelectionSlider.ResetImmediately();
+        }
+        else if (playSelectionPanel != null)
+        {
+            playSelectionPanel.SetActive(false);
+        }
+
+        ClearPlayOptions();
+
+        endScreen.SetActive(false);
+
+        if (sitchPanel != null)
+        {
+            sitchPanel.ResetForNewSituation();
+        }
+
+        currentSituation = null;
+
+        yield return null;
+
+        if (playSelectionPanel != null)
+        {
+            playSelectionPanel.SetActive(false);
+        }
+
+        if (sitchPanel != null)
+        {
+            sitchPanel.gameObject.SetActive(false);
+        }
+
+        if (pregameMenuAnimation != null)
+        {
+            pregameMenuAnimation.ResetImmediately();
+        }
+
+        if (mainMenu != null)
+        {
+            mainMenu.SetActive(true);
+        }
+
+        UpdateSelectedTeamDisplay();
+        SetMainMenuInteractable(true);
+
+        returnToMenuCoroutine = null;
+        returnToMenuInProgress = false;
+    }
+
+    public void RestartGameSequence()
+    {
+        if (restartInProgress)
+        {
+            return;
+        }
+
+        StartCoroutine(
+            RestartGameSequenceRoutine());
+    }
+
+    private IEnumerator RestartGameSequenceRoutine()
+    {
+        restartInProgress = true;
+
+        Time.timeScale = 1f;
+
+        endScreen.SetActive(false);
+
+        if (setupCoroutine != null)
+        {
+            StopCoroutine(setupCoroutine);
+            setupCoroutine = null;
+        }
+
+        if (confirmPlayCoroutine != null)
+        {
+            StopCoroutine(confirmPlayCoroutine);
+            confirmPlayCoroutine = null;
+        }
+
+        setupInProgress = false;
+        playHasBeenSelected = false;
+
+        if (sequenceController != null)
+        {
+            sequenceController.ResetCurrentPlay();
+            sequenceController.SetSelectedPlay(null);
+        }
+
+        if (playSelectionSlider != null)
+        {
+            playSelectionSlider.ResetImmediately();
+        }
+        else if (playSelectionPanel != null)
+        {
+            playSelectionPanel.SetActive(false);
+        }
+
+        ClearPlayOptions();
+
+
+
+        yield return null;
+
+        currentSituation = null;
+
+        restartInProgress = false;
+
+        StartGameSetup();
+    }
+
+    private void ClearPlayOptions()
+    {
+        if (playButtons == null)
+        {
+            return;
+        }
+
+        foreach (PlaySelectionButton playButton
+                 in playButtons)
+        {
+            if (playButton == null)
+            {
+                continue;
+            }
+
+            playButton.Clear();
+
             Button button =
                 playButton.GetComponent<Button>();
 

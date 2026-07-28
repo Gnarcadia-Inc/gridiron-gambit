@@ -37,6 +37,10 @@ public class FootballRouteRunner : MonoBehaviour
     public FootballPlayerAnimator PlayerAnimator =>
     playerAnimator;
 
+    [SerializeField]
+    private FootballReceiverTarget footballReceiverTarget;
+    public OffensiveRole Role => (footballReceiverTarget != null) ? footballReceiverTarget.Role : OffensiveRole.Quarterback;
+
     private void Reset()
     {
         characterController =

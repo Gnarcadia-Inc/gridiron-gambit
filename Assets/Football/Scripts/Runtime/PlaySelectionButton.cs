@@ -24,6 +24,17 @@ public class PlaySelectionButton : MonoBehaviour
             GetComponentInChildren<TMP_Text>();
     }
 
+    public void Clear()
+    {
+        option = null;
+        setupController = null;
+
+        if (button != null)
+        {
+            button.interactable = false;
+        }
+    }
+
     public void Configure(
         FootballPlayOption newOption,
         FootballGameSetupController controller)

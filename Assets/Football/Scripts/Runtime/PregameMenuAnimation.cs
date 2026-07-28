@@ -35,10 +35,20 @@ public class PregameMenuAnimation : MonoBehaviour
 
     private void Awake()
     {
-        animationCoroutine = StartCoroutine(AnimatePregameMenu());
+        AnimatePregameMenu();
     }
 
-    private IEnumerator AnimatePregameMenu()
+    private void AnimatePregameMenu()
+    {
+        if (animationCoroutine != null)
+        {
+            StopCoroutine(animationCoroutine);
+        }
+
+        animationCoroutine = StartCoroutine(AnimatePregameMenuRoutine());
+    }
+
+    private IEnumerator AnimatePregameMenuRoutine()
     {
         /*
          * Awake occurs before Unity has completed its first UI layout pass.
@@ -70,8 +80,11 @@ public class PregameMenuAnimation : MonoBehaviour
         // Initial states.
         titleRect.localScale = Vector3.one * 3f;
         SetGraphicAlpha(holeTitleImage, 0f);
+        SetGraphicAlpha(titleImage, 1f);
 
         rotatingObject.localScale = new Vector3(160f, 110f, 110f);
+
+        rotatingObject.gameObject.SetActive(true);
 
         backRect.localScale = Vector3.one * 2f;
 
@@ -456,5 +469,12 @@ public class PregameMenuAnimation : MonoBehaviour
 
         exitCoroutine = null;
         onFinished?.Invoke();
+    }
+
+    public void ResetImmediately()
+    {
+        StopAllCoroutines();
+
+        AnimatePregameMenu();
     }
 }

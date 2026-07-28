@@ -119,6 +119,11 @@ public class FootballBall : MonoBehaviour
 
         transform.position =
             targetPosition;
+
+        if (!hasBeenCaught)
+        {
+            sequenceController.RegisterIncompletion(transform.position);
+        }
     }
 
     private void FaceTravelDirection(

@@ -108,6 +108,9 @@ public class EndScreenSequence : MonoBehaviour
     private Vector3 totalTextOriginalScale;
     private float displayedTotal;
 
+    [SerializeField]
+    private FootballGameSetupController gameSetupController;
+
     private void Awake()
     {
         if (totalText != null)
@@ -293,8 +296,7 @@ public class EndScreenSequence : MonoBehaviour
 
         if (totalText != null)
         {
-            totalText.text =
-                FormatTotal(displayedTotal);
+            totalText.text = displayedTotal.ToString("F2");
 
             totalText.rectTransform.localScale =
                 totalTextOriginalScale;
@@ -495,22 +497,8 @@ public class EndScreenSequence : MonoBehaviour
     {
         if (totalText != null)
         {
-            totalText.text =
-                FormatTotal(displayedTotal);
+            totalText.text = displayedTotal.ToString("F2");
         }
-    }
-
-    private static string FormatTotal(
-        float value)
-    {
-        /*
-         * Examples:
-         *
-         * 0      -> "0"
-         * 0.1    -> "0.1"
-         * 1.25   -> "1.25"
-         */
-        return value.ToString("0.##");
     }
 
     /*
@@ -675,10 +663,6 @@ public class EndScreenSequence : MonoBehaviour
                 Mathf.Clamp01(
                     elapsed / duration);
 
-            /*
-             * Linear interpolation usually looks best for
-             * countdown timers.
-             */
             image.fillAmount =
                 Mathf.Lerp(
                     startFill,
@@ -689,6 +673,8 @@ public class EndScreenSequence : MonoBehaviour
         }
 
         image.fillAmount = targetFill;
+
+        gameSetupController.ReturnToMainMenu();
     }
 
     private void ClearExistingEntries()
