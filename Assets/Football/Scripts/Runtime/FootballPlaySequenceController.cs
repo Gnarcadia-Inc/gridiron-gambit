@@ -649,8 +649,8 @@ public class FootballPlaySequenceController : MonoBehaviour
             int offenseLayer = LayerMask.NameToLayer(offenseLayerName);
             SetPlayerRootLayer(playerObject, offenseLayer);
 
-            runtimeOffensiveLinemen.Add(
-                offensiveController);
+            runtimeOffensiveLinemen.Add(offensiveController);
+            spawnedPlayers.Add(playerObject);
         }
     }
 
@@ -1155,6 +1155,7 @@ public class FootballPlaySequenceController : MonoBehaviour
             SetPlayerRootLayer(defenderObject, defenseLayer);
 
             runtimeFrontDefenders.Add(defender);
+            spawnedPlayers.Add(defenderObject);
 
             result.Add(defender);
         }
