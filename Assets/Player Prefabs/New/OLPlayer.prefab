@@ -348,15 +348,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 816b6f82a375c4eb896ed02588a9a9ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterController: {fileID: 1133587719284899466}
-  defaultSpeedYardsPerSecond: 3
+  characterController: {fileID: 9091428163039980508, guid: 6b92447d2e76e44068f49e340b52a36a, type: 3}
+  defaultSpeedYardsPerSecond: 12
   rotationSpeed: 720
-  coverageCushionYards: 0.75
-  stoppingDistance: 0.1
-  predictionAbility: 0
+  coverageCushionYards: 4
+  stoppingDistance: 2
+  predictionAbility: 0.501
   closingSpeedMultiplier: 1
   fullClosingSpeedGapYards: 1
-  playerAnimator: {fileID: 3417548987614766558}
+  playerAnimator: {fileID: 5642205735725902620, guid: 6b92447d2e76e44068f49e340b52a36a, type: 3}
 --- !u!114 &6112293798494715171
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Text.RegularExpressions;
 
 public enum PlayResultEntry
 {
@@ -12,17 +13,18 @@ public enum PlayResultEntry
     FieldGoal,
     Redzone,
     ClutchFieldGoalRange,
-    ClutchScore,
+    Clutch,
     Comeback,
     ClutchComeback,
-    DivisionRivalryWin,
-    StadiumSeriesWin,
-    PlayoffWin,
-    SuperBowlWin,
+    DivisionRivalry,
+    StadiumSeries,
+    Playoffs,
+    SuperBowl,
     Fumble,
     FirstDown,
     ThirdAndLongConversion,
-    FourthDownConversion
+    FourthDownConversion,
+    Scramble
 }
 
 public class EndScreenSequence : MonoBehaviour
@@ -107,9 +109,16 @@ public class EndScreenSequence : MonoBehaviour
     private Coroutine sequenceCoroutine;
     private Vector3 totalTextOriginalScale;
     private float displayedTotal;
+    private float calculatedTotal;
 
     [SerializeField]
     private FootballGameSetupController gameSetupController;
+
+    [SerializeField]
+    private RosterManager rosterManager;
+
+    [SerializeField]
+    private BetManager betManager;
 
     private void Awake()
     {
@@ -122,7 +131,7 @@ public class EndScreenSequence : MonoBehaviour
         playAgainAvailableFlag = false;
     }
 
-    public void PlayEndSequence()
+    public void PlayEndSequence(FootballPlayOutcome playOutcome)
     {
         if (sequenceCoroutine != null)
         {
@@ -130,18 +139,7 @@ public class EndScreenSequence : MonoBehaviour
         }
 
         sequenceCoroutine =
-            StartCoroutine(EndSequenceRoutine());
-    }
-
-    public void PlayEndSequence(
-        List<PlayResultEntry> entries)
-    {
-        playResultEntryList =
-            entries != null
-                ? new List<PlayResultEntry>(entries)
-                : new List<PlayResultEntry>();
-
-        PlayEndSequence();
+            StartCoroutine(EndSequenceRoutine(playOutcome));
     }
 
     public void StopEndSequence()
@@ -155,11 +153,11 @@ public class EndScreenSequence : MonoBehaviour
         playAgainAvailableFlag = false;
     }
 
-    private IEnumerator EndSequenceRoutine()
+    private IEnumerator EndSequenceRoutine(FootballPlayOutcome playOutcome)
     {
         playAgainAvailableFlag = false;
 
-        PrepareInitialState();
+        PrepareInitialState(playOutcome);
 
         /*
          * SECOND 0.0:
@@ -226,7 +224,7 @@ public class EndScreenSequence : MonoBehaviour
             PlayResultEntry entry =
                 playResultEntryList[i];
 
-            yield return RevealEntry(entry);
+            yield return RevealEntry(entry, playOutcome.yards);
         }
 
         /*
@@ -243,6 +241,9 @@ public class EndScreenSequence : MonoBehaviour
             totalTextOriginalScale * 2f,
             totalTextOriginalScale,
             totalScaleHalfDuration);
+
+        //REPLACE THIS WITH JUST GETTING THE PLAYERS LIVE BALANCE
+        betManager.IncrementBalance(displayedTotal);
 
         /*
          * Fade in the Play Again button.
@@ -272,7 +273,7 @@ public class EndScreenSequence : MonoBehaviour
         sequenceCoroutine = null;
     }
 
-    private void PrepareInitialState()
+    private void PrepareInitialState(FootballPlayOutcome playOutcome)
     {
         /*
          * The GameObject is activated immediately afterward.
@@ -296,7 +297,7 @@ public class EndScreenSequence : MonoBehaviour
 
         if (totalText != null)
         {
-            totalText.text = displayedTotal.ToString("F2");
+            totalText.text = "$" + displayedTotal.ToString("F2");
 
             totalText.rectTransform.localScale =
                 totalTextOriginalScale;
@@ -317,15 +318,199 @@ public class EndScreenSequence : MonoBehaviour
              */
             scrollRect.verticalNormalizedPosition = 1f;
         }
+
+        playResultEntryList.Clear();
+        //USE DETERMINISTIC VALUES AND CHECK THEM AGAINST VISUAL VALUES IN THE FUTURE
+        switch (playOutcome.result)
+        {
+            case FootballPlayResult.Interception:
+                resultTitleText.text = "PICKED OFF";
+                playerText.text = rosterManager.GetPlayer(playOutcome.opponentTeam, RosterPosition.DB);
+                playText.text = playOutcome.yards.ToString("F0") + " YD INT";
+
+                //playResultEntryList.Add();
+                break;
+            case FootballPlayResult.Incompletion:
+                resultTitleText.text = "INCOMPLETE";
+                playerText.text = rosterManager.GetPlayer(playOutcome.opponentTeam, RosterPosition.WRB);
+                playText.text = "INTENDED FOR";
+
+                //playResultEntryList.Add();
+                break;
+            case FootballPlayResult.Sack:
+                resultTitleText.text = "SACKED";
+                playerText.text = rosterManager.GetPlayer(playOutcome.opponentTeam, RosterPosition.DL);
+                playText.text = playOutcome.yards.ToString("F0") + " YD SACK";
+
+                //playResultEntryList.Add();
+                break;
+            case FootballPlayResult.Tackle:
+                if (playOutcome.wasPass)
+                {
+                    resultTitleText.text = "NICE GRAB!";
+                    playText.text = playOutcome.yards.ToString("F0") + " YD REC";
+
+                    playResultEntryList.Add(PlayResultEntry.Reception);
+                }
+                else if (playOutcome.wasRun)
+                {
+                    resultTitleText.text = "GOOD RUN!";
+                    playText.text = playOutcome.yards.ToString("F0") + " YD RUN";
+                }
+                else if (playOutcome.wasScramble)
+                {
+                    resultTitleText.text = "GOOD SCRAMBLE!";
+                    playText.text = playOutcome.yards.ToString("F0") + " YD RUN";
+
+                    playResultEntryList.Add(PlayResultEntry.Scramble);
+                }
+
+                RosterPosition tackledPosition = rosterManager.ConvertOffensiveRoleToRosterPosition(playOutcome.ballCarrierRole);
+                playerText.text = rosterManager.GetPlayer(playOutcome.playerTeam, tackledPosition);
+
+                playResultEntryList.Add(PlayResultEntry.Yards);
+
+                if (playOutcome.yards >= gameSetupController.CurrentSituation.yardsToGo)
+                {
+                    playResultEntryList.Add(PlayResultEntry.FirstDown);
+
+                    if (gameSetupController.CurrentSituation.down == 4)
+                    {
+                        playResultEntryList.Add(PlayResultEntry.FourthDownConversion);
+                    }
+                    else if (gameSetupController.CurrentSituation.down == 3 && gameSetupController.CurrentSituation.yardsToGo >= 7)
+                    {
+                        playResultEntryList.Add(PlayResultEntry.ThirdAndLongConversion);
+                    }
+                }
+
+                if (gameSetupController.CurrentSituation.quarter == 4 && gameSetupController.CurrentSituation.secondsRemaining <= 300f)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Clutch);
+                }
+
+                if (gameSetupController.CurrentSituation.yardsFromOwnGoal < 80f && gameSetupController.CurrentSituation.yardsFromOwnGoal + playOutcome.yards >= 80f)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Redzone);
+                }
+                
+                switch (gameSetupController.CurrentSituation.rivalry)
+                {
+                    case RivalryType.DivisionRivalry:
+                        playResultEntryList.Add(PlayResultEntry.DivisionRivalry);
+                        break;
+                    case RivalryType.StadiumSeries:
+                        playResultEntryList.Add(PlayResultEntry.StadiumSeries);
+                        break;
+                    case RivalryType.Playoffs:
+                        playResultEntryList.Add(PlayResultEntry.Playoffs);
+                        break;
+                    case RivalryType.SuperBowl:
+                        playResultEntryList.Add(PlayResultEntry.SuperBowl);
+                        break;
+                }
+
+                break;
+            case FootballPlayResult.Touchdown:
+                resultTitleText.text = "TOUCHDOWN!";
+                RosterPosition touchdownPosition = rosterManager.ConvertOffensiveRoleToRosterPosition(playOutcome.ballCarrierRole);
+                playerText.text = rosterManager.GetPlayer(playOutcome.playerTeam, touchdownPosition);
+                playText.text = playOutcome.yards.ToString("F0") + " YD TD";
+
+
+                if (playOutcome.wasPass)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Reception);
+                }
+                else if (playOutcome.wasScramble)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Scramble);
+                }
+
+                playResultEntryList.Add(PlayResultEntry.Yards);
+
+                playResultEntryList.Add(PlayResultEntry.Touchdown);
+
+                bool clutchFlag = false;
+                bool comebackFlag = false;
+
+                if (gameSetupController.CurrentSituation.quarter == 4 && gameSetupController.CurrentSituation.secondsRemaining <= 300f)
+                {
+                    clutchFlag = true;
+                }
+
+                if (gameSetupController.CurrentSituation.opponentScore - gameSetupController.CurrentSituation.playerScore <= 7)
+                {
+                    comebackFlag = true;
+                }
+
+                if (!clutchFlag && comebackFlag)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Comeback);
+                }
+                else if (clutchFlag && !comebackFlag)
+                {
+                    playResultEntryList.Add(PlayResultEntry.Clutch);
+                }
+                else if (clutchFlag && comebackFlag)
+                {
+                    playResultEntryList.Add(PlayResultEntry.ClutchComeback);
+                }
+
+                if (gameSetupController.CurrentSituation.down == 4)
+                {
+                    playResultEntryList.Add(PlayResultEntry.FourthDownConversion);
+                }
+                else if (gameSetupController.CurrentSituation.down == 3 && gameSetupController.CurrentSituation.yardsToGo >= 7)
+                {
+                    playResultEntryList.Add(PlayResultEntry.ThirdAndLongConversion);
+                }
+
+                switch (gameSetupController.CurrentSituation.rivalry)
+                {
+                    case RivalryType.DivisionRivalry:
+                        playResultEntryList.Add(PlayResultEntry.DivisionRivalry);
+                        break;
+                    case RivalryType.StadiumSeries:
+                        playResultEntryList.Add(PlayResultEntry.StadiumSeries);
+                        break;
+                    case RivalryType.Playoffs:
+                        playResultEntryList.Add(PlayResultEntry.Playoffs);
+                        break;
+                    case RivalryType.SuperBowl:
+                        playResultEntryList.Add(PlayResultEntry.SuperBowl);
+                        break;
+                }
+                
+                break;
+        }
+
     }
 
-    private IEnumerator RevealEntry(
-        PlayResultEntry entry)
+    private IEnumerator RevealEntry(PlayResultEntry entry, float value = 1f)
     {
         GameObject instance =
             Instantiate(
                 playResultEntryPrefab,
                 scrollContent);
+
+        (float, bool) playEntryValue = GetPlayEntryValue(entry, value);
+        if (playEntryValue.Item1 >= 0)
+        {
+            if (!playEntryValue.Item2)
+            {
+                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "+ $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+            }
+            else
+            {
+                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "x $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+            }
+        }
+        else
+        {
+            playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "- $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+        }
+
 
         /*
          * Ensure the prefab root has a CanvasGroup.
@@ -408,9 +593,15 @@ public class EndScreenSequence : MonoBehaviour
          * The total starts rolling only after the entry has
          * reached full alpha.
          */
-        float nextTotal =
-            displayedTotal +
-            GetPlayEntryValue(entry);
+        float nextTotal = 0f;
+        if (!playEntryValue.Item2)
+        {
+            nextTotal = displayedTotal + playEntryValue.Item1;
+        }
+        else
+        {
+            nextTotal = displayedTotal * playEntryValue.Item1;
+        }
 
         float remainingInterval =
             Mathf.Max(
@@ -451,6 +642,12 @@ public class EndScreenSequence : MonoBehaviour
 
         displayedTotal = nextTotal;
         UpdateTotalText();
+    }
+
+    public string ToSpacedString(PlayResultEntry enumValue)
+    {
+        string name = enumValue.ToString();
+        return Regex.Replace(name, @"(?<=[a-z])([A-Z])", " $1", RegexOptions.Compiled);
     }
 
     private IEnumerator RollTotal(
@@ -497,17 +694,89 @@ public class EndScreenSequence : MonoBehaviour
     {
         if (totalText != null)
         {
-            totalText.text = displayedTotal.ToString("F2");
+            totalText.text = "$" + displayedTotal.ToString("F2");
         }
     }
 
     /*
      * Replace this method later with your actual scoring logic.
      */
-    private float GetPlayEntryValue(
-        PlayResultEntry entry)
+    private (float, bool) GetPlayEntryValue(PlayResultEntry entry, float value)
     {
-        return 0.1f;
+        float betMulti = betManager.CurrentBet;
+        float entryPoints = 0f;
+
+        bool bonusFlag = false;
+
+        switch (entry)
+        {
+            case PlayResultEntry.Reception:
+
+                entryPoints = 0.5f * betMulti;
+                break;
+            case PlayResultEntry.Redzone:
+
+                entryPoints = 0.65f * betMulti;
+                break;
+            case PlayResultEntry.Scramble:
+
+                entryPoints = 0.575f * betMulti;
+                break;
+            case PlayResultEntry.Touchdown:
+
+                entryPoints = 3f * betMulti;
+                break;
+            case PlayResultEntry.Yards:
+
+                entryPoints = 0.05f * value * betMulti;
+                break;
+            case PlayResultEntry.Clutch:
+
+                entryPoints = 1.75f * betMulti; //COULD MAKE THIS EFFECTED BY HOW MUCH TIME IS LEFT
+                break;
+            case PlayResultEntry.ClutchComeback:
+
+                entryPoints = 7.5f * betMulti;
+                break;
+            case PlayResultEntry.Comeback:
+
+                entryPoints = 2.25f * betMulti; //COULD MAKE THIS EFFECTED BY HOW BIG THE COMEBACK IS
+                break;
+            case PlayResultEntry.FirstDown:
+
+                entryPoints = 0.3f * betMulti;
+                break;
+            case PlayResultEntry.FourthDownConversion:
+
+                entryPoints = 1.5f * betMulti;
+                break;
+            case PlayResultEntry.ThirdAndLongConversion:
+
+                entryPoints = 0.75f * betMulti;
+                break;
+            case PlayResultEntry.DivisionRivalry:
+
+                entryPoints = 2f * betMulti;
+                bonusFlag = true;
+                break;
+            case PlayResultEntry.StadiumSeries:
+
+                entryPoints = 1.5f;
+                bonusFlag = true;
+                break;
+            case PlayResultEntry.Playoffs:
+
+                entryPoints = 4f;
+                bonusFlag = true;
+                break;
+            case PlayResultEntry.SuperBowl:
+
+                entryPoints = 8f;
+                bonusFlag = true;
+                break;
+        }
+
+        return (entryPoints, bonusFlag);
     }
 
     private IEnumerator FadeImage(

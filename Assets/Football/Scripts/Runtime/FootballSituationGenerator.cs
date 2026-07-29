@@ -17,6 +17,8 @@ public static class FootballSituationGenerator
                 playerTeam,
                 allTeams);
 
+        RivalryType rivalry = CheckForRivalry(playerTeam, opponent);
+
         int quarter =
             Random.Range(1, 5);
 
@@ -84,7 +86,8 @@ public static class FootballSituationGenerator
             secondsRemaining = secondsRemaining,
             down = down,
             yardsToGo = yardsToGo,
-            yardsFromOwnGoal = fieldPosition
+            yardsFromOwnGoal = fieldPosition,
+            rivalry = rivalry
         };
     }
 
@@ -111,6 +114,51 @@ public static class FootballSituationGenerator
 
         return candidates[
             Random.Range(0, candidates.Count)];
+    }
+
+    private static RivalryType CheckForRivalry(FootballTeamDefinition pTeam, FootballTeamDefinition oTeam)
+    {
+        RivalryType rivalry = RivalryType.None;
+
+        if (pTeam.abbreviation == "RHN" && oTeam.abbreviation == "JUG" ||
+            pTeam.abbreviation == "BST" && oTeam.abbreviation == "PGN" ||
+            pTeam.abbreviation == "MMB" && oTeam.abbreviation == "PLT" ||
+            pTeam.abbreviation == "JUG" && oTeam.abbreviation == "RHN" ||
+            pTeam.abbreviation == "PGN" && oTeam.abbreviation == "BST" ||
+            pTeam.abbreviation == "PLT" && oTeam.abbreviation == "MMB"
+            )
+        {
+            //CHANGE TO DETERMINISTIC
+            int rand = UnityEngine.Random.Range(0, 7);
+            if (rand == 6)
+            {
+                rivalry = RivalryType.Playoffs;
+            }
+            else
+            {
+                rivalry = RivalryType.DivisionRivalry;
+            }
+            
+        }
+        else
+        {
+            //CHANGE TO DETERMINISTIC
+            int rand = UnityEngine.Random.Range(0, 14);
+            if (rand < 2)
+            {
+                rivalry = RivalryType.StadiumSeries;
+            }
+            else if (rand < 4)
+            {
+                rivalry = RivalryType.Playoffs;
+            }
+            else if (rand < 5)
+            {
+                rivalry = RivalryType.SuperBowl;
+            }
+        }
+
+        return rivalry;
     }
 
     private static int GeneratePlausibleScore(

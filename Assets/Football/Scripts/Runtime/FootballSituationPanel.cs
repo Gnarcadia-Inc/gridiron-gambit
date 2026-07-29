@@ -4,6 +4,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum RivalryType
+{
+    DivisionRivalry,
+    StadiumSeries,
+    Playoffs,
+    SuperBowl,
+    None
+}
+
 public class FootballSituationPanel : MonoBehaviour
 {
     [Header("Situation Text")]
@@ -69,6 +78,52 @@ public class FootballSituationPanel : MonoBehaviour
 
     private TMP_Text[] animatedTexts;
 
+    [SerializeField]
+    private Image rivalryBonusImage;
+
+    [SerializeField]
+    private Sprite divisionRivalrySprite;
+
+    [SerializeField]
+    private Sprite stadiumSeriesSprite;
+
+    [SerializeField]
+    private Sprite playoffsSprite;
+
+    [SerializeField]
+    private Sprite superBowlSprite;
+
+
+    [SerializeField]
+    private Image comebackBonusImage;
+
+    [SerializeField]
+    private Sprite comebackOnSprite;
+
+    [SerializeField]
+    private Sprite comebackOffSprite;
+
+
+    [SerializeField]
+    private Image clutchTimeBonusImage;
+
+    [SerializeField]
+    private Sprite clutchTimeOnSprite;
+
+    [SerializeField]
+    private Sprite clutchTimeOffSprite;
+
+
+    [SerializeField]
+    private Image downBonusImage;
+
+    [SerializeField]
+    private Sprite fourthDownSprite;
+
+    [SerializeField]
+    private Sprite thirdAndLongSprite;
+
+
     private void Awake()
     {
         animatedTexts = new TMP_Text[]
@@ -91,9 +146,7 @@ public class FootballSituationPanel : MonoBehaviour
     {
         StopAllCoroutines();
 
-        //ClearDisplayedSituation();
-
-        //gameObject.SetActive(false);
+        ClearBonuses();
     }
 
     public void Reveal(
@@ -438,36 +491,43 @@ public class FootballSituationPanel : MonoBehaviour
 
                 opponentText.text = situation.opponentTeam.abbreviation;
                 opponentTeamLogo.sprite = situation.opponentTeam.menuLogo;
+
+                CheckForRivalry(situation);
                 break;
 
             case 1:
                 playerScoreText.text = $"{situation.playerScore}";
                 oppScoreText.text = $"{situation.opponentScore}";
+
+                CheckForComeback(situation);
                 break;
 
             case 2:
-                quarterText.text =
-                    situation.QuarterText;
+                quarterText.text = situation.QuarterText;
                 break;
 
             case 3:
-                clockText.text =
-                    situation.ClockText;
+                clockText.text = situation.ClockText;
+
+                CheckForClutchTime(situation);
                 break;
 
             case 4:
-                downText.text =
-                    situation.DownText;
+                downText.text = situation.DownText;
+
+                CheckForFourthDown(situation);
                 break;
 
             case 5:
-                yardsToGoText.text =
-                    situation.yardsToGo.ToString();
+                yardsToGoText.text = situation.yardsToGo.ToString();
+
+                CheckForThirdAndLong(situation);
                 break;
 
             case 6:
-                yardLineText.text =
-                    situation.YardLineText;
+                yardLineText.text = situation.YardLineText;
+
+                CheckForRedZone(situation);
                 break;
         }
     }
@@ -528,5 +588,276 @@ public class FootballSituationPanel : MonoBehaviour
             3 => "rd",
             _ => "th"
         };
+    }
+
+    private void CheckForRivalry(FootballGameSituation situation)
+    {
+        SetRivalryBonus(situation.rivalry);
+    }
+
+    private void SetRivalryBonus(RivalryType rivalry)
+    {
+        if (rivalry != RivalryType.None)
+        {
+            StartCoroutine(ShowRivalryBonusRoutine(rivalry));
+        }
+    }
+
+    private IEnumerator ShowRivalryBonusRoutine(RivalryType rivalry)
+    {
+        switch (rivalry)
+        {
+            case RivalryType.DivisionRivalry:
+                rivalryBonusImage.sprite = divisionRivalrySprite;
+                break;
+            case RivalryType.StadiumSeries:
+                rivalryBonusImage.sprite = stadiumSeriesSprite;
+                break;
+            case RivalryType.Playoffs:
+                rivalryBonusImage.sprite = playoffsSprite;
+                break;
+            case RivalryType.SuperBowl:
+                rivalryBonusImage.sprite = superBowlSprite;
+                break;
+        }
+
+
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = rivalryBonusImage.color;
+        color.a = 0f;
+        rivalryBonusImage.color = color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color.a = Mathf.Lerp(
+                    0f,
+                    1f,
+                    progress);
+            rivalryBonusImage.color = color;
+
+            yield return null;
+        }
+
+        color.a = 1f;
+        rivalryBonusImage.color = color;
+    }
+
+
+    private void CheckForComeback(FootballGameSituation situation)
+    {
+        if (situation.opponentScore - situation.playerScore <= 7)
+        {
+            StartCoroutine(ShowComebackBonusRoutine());
+        }
+    }
+
+    private IEnumerator ShowComebackBonusRoutine()
+    {
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = comebackBonusImage.color;
+        color.a = 0.25f;
+        comebackBonusImage.color = color;
+        comebackBonusImage.sprite = comebackOnSprite;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color.a = Mathf.Lerp(
+                    0.25f,
+                    1f,
+                    progress);
+            comebackBonusImage.color = color;
+
+            yield return null;
+        }
+
+        color.a = 1f;
+        comebackBonusImage.color = color;
+    }
+
+    private void CheckForClutchTime(FootballGameSituation situation)
+    {
+        if (situation.quarter == 4 && situation.secondsRemaining < 300f)
+        {
+            StartCoroutine(ShowClutchTimeBonusRoutine());
+        }
+    }
+
+    private IEnumerator ShowClutchTimeBonusRoutine()
+    {
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = clutchTimeBonusImage.color;
+        color.a = 0.25f;
+        clutchTimeBonusImage.color = color;
+        clutchTimeBonusImage.sprite = clutchTimeOnSprite;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color.a = Mathf.Lerp(
+                    0.25f,
+                    1f,
+                    progress);
+            clutchTimeBonusImage.color = color;
+
+            yield return null;
+        }
+
+        color.a = 1f;
+        clutchTimeBonusImage.color = color;
+    }
+
+    private void CheckForFourthDown(FootballGameSituation situation)
+    {
+        if (situation.down == 4)
+        {
+            StartCoroutine(ShowFourthDownBonusRoutine());
+        }
+    }
+
+    private IEnumerator ShowFourthDownBonusRoutine()
+    {
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = downBonusImage.color;
+        color.a = 0.25f;
+        downBonusImage.color = color;
+        downBonusImage.sprite = fourthDownSprite;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color.a = Mathf.Lerp(
+                    0.25f,
+                    1f,
+                    progress);
+            downBonusImage.color = color;
+
+            yield return null;
+        }
+
+        color.a = 1f;
+        downBonusImage.color = color;
+    }
+
+    private void CheckForThirdAndLong(FootballGameSituation situation)
+    {
+        if (situation.down == 3 && situation.yardsToGo >= 7)
+        {
+            StartCoroutine(ShowThirdAndLongBonusRoutine());
+        }
+    }
+
+    private IEnumerator ShowThirdAndLongBonusRoutine()
+    {
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = downBonusImage.color;
+        color.a = 0.25f;
+        downBonusImage.color = color;
+        downBonusImage.sprite = thirdAndLongSprite;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color.a = Mathf.Lerp(
+                    0.25f,
+                    1f,
+                    progress);
+            downBonusImage.color = color;
+
+            yield return null;
+        }
+
+        color.a = 1f;
+        downBonusImage.color = color;
+    }
+
+    private void CheckForRedZone(FootballGameSituation situation)
+    {
+        if (situation.yardsFromOwnGoal >= 80)
+        {
+            StartCoroutine(ShowRedZoneRoutine());
+        }
+    }
+
+    private IEnumerator ShowRedZoneRoutine()
+    {
+        float elapsed = 0f;
+        float duration = 0.25f;
+
+        Color color = yardLineText.color;
+        color = Color.white;
+        yardLineText.color = color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration);
+
+            color = Color.Lerp(
+                    Color.white,
+                    Color.red,
+                    progress);
+
+            yardLineText.color = color;
+
+            yield return null;
+        }
+
+        yardLineText.color = Color.red;
+    }
+
+    private void ClearBonuses()
+    {
+        Color color = rivalryBonusImage.color;
+        color.a = 0f;
+        rivalryBonusImage.color = color;
+
+        comebackBonusImage.sprite = clutchTimeOffSprite;
+        clutchTimeBonusImage.sprite = clutchTimeOffSprite;
+
+        color = downBonusImage.color;
+        color.a = 0f;
+        downBonusImage.color = color;
+
+        yardLineText.color = Color.white;
     }
 }

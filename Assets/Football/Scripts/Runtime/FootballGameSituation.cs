@@ -18,6 +18,8 @@ public class FootballGameSituation
 
     public int yardsFromOwnGoal;
 
+    public RivalryType rivalry;
+
     public int ScoreDifferential =>
         playerScore - opponentScore;
 

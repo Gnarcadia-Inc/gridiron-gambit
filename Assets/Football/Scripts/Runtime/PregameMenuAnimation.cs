@@ -63,6 +63,7 @@ public class PregameMenuAnimation : MonoBehaviour
         titleImage.gameObject.SetActive(false);
 
         RectTransform titleRect = holeTitleImage.rectTransform;
+        RectTransform backTitleRect = titleImage.rectTransform;
         RectTransform backRect = backImage.rectTransform;
         RectTransform balanceRect = balanceTab.rectTransform;
 
@@ -92,7 +93,7 @@ public class PregameMenuAnimation : MonoBehaviour
             new Vector3(-806f, 150f, 0f);
 
         buttonsTransform.anchoredPosition3D =
-            new Vector3(662f, 0f, 0f);
+            new Vector3(85f, 0f, 0f);
 
         placeBetRect.anchoredPosition3D =
             new Vector3(0, -700f, 0f);
@@ -100,12 +101,12 @@ public class PregameMenuAnimation : MonoBehaviour
         placeBetCanvasGroup.alpha = 0f;
 
         selectTeamRect.anchoredPosition3D =
-            new Vector3(0f, -1050f, 0f);
+            new Vector3(0f, 366f, 0f);
 
         selectTeamCanvasGroup.alpha = 0f;
 
         captionRect.anchoredPosition3D =
-            new Vector3(0f, -1250f, 0f);
+            new Vector3(0f, 116f, 0f);
 
         captionCanvasGroup.alpha = 0f;
 
@@ -166,8 +167,8 @@ public class PregameMenuAnimation : MonoBehaviour
 
             // Buttons.
             buttonsTransform.anchoredPosition3D = Vector3.Lerp(
-                new Vector3(662f, 0f, 0f),
-                new Vector3(470f, 0f, 0f),
+                new Vector3(85f, 0f, 0f),
+                new Vector3(-115f, 0f, 0f),
                 t
             );
 
@@ -182,8 +183,8 @@ public class PregameMenuAnimation : MonoBehaviour
 
             // Select team.
             selectTeamRect.anchoredPosition3D = Vector3.Lerp(
-                new Vector3(0f, -1050f, 0f),
-                new Vector3(0f, -900f, 0f),
+                new Vector3(0f, 166f, 0f),
+                new Vector3(0f, 366f, 0f),
                 t
             );
 
@@ -191,8 +192,8 @@ public class PregameMenuAnimation : MonoBehaviour
 
             // Caption.
             captionRect.anchoredPosition3D = Vector3.Lerp(
-                new Vector3(0f, -1250f, 0f),
-                new Vector3(0f, -1150f, 0f),
+                new Vector3(0f, -84f, 0f),
+                new Vector3(0f, 116f, 0f),
                 t
             );
 
@@ -203,6 +204,7 @@ public class PregameMenuAnimation : MonoBehaviour
 
         // Apply exact final values.
         titleRect.localScale = Vector3.one * 1.5f;
+        backTitleRect.localScale = Vector3.one * 1.5f;
         SetGraphicAlpha(holeTitleImage, 1f);
 
         rotatingObject.localScale = new Vector3(80f, 55f, 55f);
@@ -213,7 +215,7 @@ public class PregameMenuAnimation : MonoBehaviour
             new Vector3(-362f, 150f, 0f);
 
         buttonsTransform.anchoredPosition3D =
-            new Vector3(470f, 0f, 0f);
+            new Vector3(-115f, 0f, 0f);
 
         placeBetRect.anchoredPosition3D =
             new Vector3(0f, -500f, 0f);
@@ -221,12 +223,12 @@ public class PregameMenuAnimation : MonoBehaviour
         placeBetCanvasGroup.alpha = 1f;
 
         selectTeamRect.anchoredPosition3D =
-            new Vector3(0f, -900f, 0f);
+            new Vector3(0f, 366f, 0f);
 
         selectTeamCanvasGroup.alpha = 1f;
 
         captionRect.anchoredPosition3D =
-            new Vector3(0f, -1150f, 0f);
+            new Vector3(0f, 116f, 0f);
 
         captionCanvasGroup.alpha = 1f;
 
@@ -404,12 +406,12 @@ public class PregameMenuAnimation : MonoBehaviour
             // Slide everything back to where it entered from.
             balanceRect.anchoredPosition3D = Vector3.Lerp(
                 balanceStartPosition,
-                new Vector3(-806f, 150f, 0f),
+                new Vector3(-362f, 650f, 0f),
                 t);
 
             buttonsTransform.anchoredPosition3D = Vector3.Lerp(
                 buttonsStartPosition,
-                new Vector3(662f, 0f, 0f),
+                new Vector3(85f, 0f, 0f),
                 t);
 
             placeBetRect.anchoredPosition3D = Vector3.Lerp(
@@ -419,12 +421,12 @@ public class PregameMenuAnimation : MonoBehaviour
 
             selectTeamRect.anchoredPosition3D = Vector3.Lerp(
                 selectTeamStartPosition,
-                new Vector3(-1050f, 0f, 0f),
+                new Vector3(366f, 0f, 0f),
                 t);
 
             captionRect.anchoredPosition3D = Vector3.Lerp(
                 captionStartPosition,
-                new Vector3(-1250f, 0f, 0f),
+                new Vector3(116f, 0f, 0f),
                 t);
 
             placeBetCanvasGroup.alpha =
@@ -449,19 +451,19 @@ public class PregameMenuAnimation : MonoBehaviour
         backRect.localScale = Vector3.one * 2f;
 
         balanceRect.anchoredPosition3D =
-            new Vector3(-806f, 150f, 0f);
+            new Vector3(-362f, 650f, 0f);
 
         buttonsTransform.anchoredPosition3D =
-            new Vector3(662f, 0f, 0f);
+            new Vector3(85f, 0f, 0f);
 
         placeBetRect.anchoredPosition3D =
             new Vector3(-700f, 0f, 0f);
 
         selectTeamRect.anchoredPosition3D =
-            new Vector3(-1050f, 0f, 0f);
+            new Vector3(366f, 0f, 0f);
 
         captionRect.anchoredPosition3D =
-            new Vector3(-1250f, 0f, 0f);
+            new Vector3(116f, 0f, 0f);
 
         placeBetCanvasGroup.alpha = 0f;
         selectTeamCanvasGroup.alpha = 0f;

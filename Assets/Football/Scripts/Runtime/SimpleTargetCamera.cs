@@ -8,6 +8,9 @@ public class SimpleTargetCamera : MonoBehaviour
     private Vector3 localOffset =
         new Vector3(0f, 20f, -30f);
 
+    private Vector3 targetOffset =
+        new Vector3(0f, 5f, 0f);
+
     private float positionDamping = 8f;
 
     [SerializeField]
@@ -44,13 +47,13 @@ public class SimpleTargetCamera : MonoBehaviour
         if (useTargetRotation)
         {
             desiredPosition =
-                target.position +
+                target.position + targetOffset +
                 target.rotation * localOffset;
         }
         else
         {
             desiredPosition =
-                target.position + localOffset;
+                target.position + targetOffset + localOffset;
         }
 
         float positionBlend =
@@ -66,7 +69,7 @@ public class SimpleTargetCamera : MonoBehaviour
                 positionBlend);
 
         Vector3 lookDirection =
-            target.position -
+            (target.position + targetOffset) -
             transform.position;
 
         if (lookDirection.sqrMagnitude >

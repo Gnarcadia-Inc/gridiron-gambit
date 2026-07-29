@@ -24,3 +24,12 @@ MonoBehaviour:
   fieldSeatBottomColour: {r: 0.49056602, g: 0.085617654, b: 0.085617654, a: 0}
   fieldStandsColour: {r: 0.49019608, g: 0.08627451, b: 0.08627451, a: 0}
   fieldStandsAltColour: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 0}
+  roster:
+  - {fileID: 11400000, guid: 559bc5888856840ab9a2b1e8eabf5fb1, type: 2}
+  - {fileID: 11400000, guid: aa29c870f30424bdc964bf8fe8e1955e, type: 2}
+  - {fileID: 11400000, guid: 804f6ed01c0bc4691a75ab73055fe9c7, type: 2}
+  - {fileID: 11400000, guid: bb3d890740b3841bfab34edab32da546, type: 2}
+  - {fileID: 11400000, guid: 8bc0f1c3b778642d2a571894b2d9b2c6, type: 2}
+  - {fileID: 11400000, guid: c3027151be9a448a6b5d0661403801bd, type: 2}
+  - {fileID: 11400000, guid: e48fcdac5c458497b87da004377fb4c9, type: 2}
+  - {fileID: 11400000, guid: 483bde2342ef04fb1893ecb7f4e49175, type: 2}

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(
     fileName = "New Football Team",
@@ -31,4 +32,6 @@ public class FootballTeamDefinition : ScriptableObject
     public Color fieldSeatBottomColour;
     public Color fieldStandsColour;
     public Color fieldStandsAltColour;
+
+    public List<RosterSpot> roster;
 }

@@ -338,11 +338,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterController: {fileID: 9091428163039980508}
-  defaultSpeedYardsPerSecond: 3
+  defaultSpeedYardsPerSecond: 12
   rotationSpeed: 720
-  coverageCushionYards: 0.75
-  stoppingDistance: 0.1
-  predictionAbility: 0
+  coverageCushionYards: 4
+  stoppingDistance: 2
+  predictionAbility: 0.501
   closingSpeedMultiplier: 1
   fullClosingSpeedGapYards: 1
   playerAnimator: {fileID: 5642205735725902620}

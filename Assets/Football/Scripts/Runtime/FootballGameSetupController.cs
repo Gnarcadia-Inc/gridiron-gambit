@@ -103,6 +103,9 @@ public class FootballGameSetupController : MonoBehaviour
     private Coroutine returnToMenuCoroutine;
     private bool returnToMenuInProgress;
 
+    [SerializeField]
+    private BetManager betManager;
+
     private void Awake()
     {
         Time.timeScale = 1f;
@@ -166,6 +169,8 @@ public class FootballGameSetupController : MonoBehaviour
         {
             return;
         }
+
+        betManager.PlaceBet();
 
         setupCoroutine = StartCoroutine(SetupRoutine());
     }
@@ -491,7 +496,47 @@ public class FootballGameSetupController : MonoBehaviour
 
         Time.timeScale = 1f;
 
+        if (setupCoroutine != null)
+        {
+            StopCoroutine(setupCoroutine);
+            setupCoroutine = null;
+        }
+
+        if (confirmPlayCoroutine != null)
+        {
+            StopCoroutine(confirmPlayCoroutine);
+            confirmPlayCoroutine = null;
+        }
+
+        setupInProgress = false;
+        playHasBeenSelected = false;
+        restartInProgress = false;
+
+        if (sequenceController != null)
+        {
+            sequenceController.ResetCurrentPlay();
+            sequenceController.SetSelectedPlay(null);
+        }
+
+        if (playSelectionSlider != null)
+        {
+            playSelectionSlider.ResetImmediately();
+        }
+        else if (playSelectionPanel != null)
+        {
+            playSelectionPanel.SetActive(false);
+        }
+
+        ClearPlayOptions();
+
         endScreen.SetActive(false);
+
+        if (sitchPanel != null)
+        {
+            sitchPanel.ResetForNewSituation();
+        }
+
+        currentSituation = null;
 
         if (setupCoroutine != null)
         {

@@ -26,6 +26,9 @@ public class FootballPlayOutcome
     public bool wasPass;
     public bool wasRun;
     public bool wasScramble;
+
+    public FootballTeamDefinition playerTeam;
+    public FootballTeamDefinition opponentTeam;
 }
 
 [System.Serializable]
@@ -274,6 +277,12 @@ public class FootballPlaySequenceController : MonoBehaviour
 
     [SerializeField]
     private FootballTouchdownZone opponentTouchdownZone;
+
+    [SerializeField]
+    private JumbotronCameraFollow jumbotronCamera;
+
+    [SerializeField]
+    private EndScreenSequence endScreenSequence;
 
     private DefensiveFrontType ResolveDefensiveFront()
     {
@@ -1782,6 +1791,7 @@ public class FootballPlaySequenceController : MonoBehaviour
         bool isOptionRunSelection = selectedPlay != null && selectedPlay.playType == FootballPlayType.Option && receiver.Role == selectedPlay.runBallCarrierRole;
 
         activeBall = Instantiate(footballPrefab, throwPosition, Quaternion.identity);
+        jumbotronCamera.SetBall(activeBall.transform);
 
         float throwDuration = isOptionRunSelection ? 0.12f : ballFlightTime;
 
@@ -2587,7 +2597,9 @@ public class FootballPlaySequenceController : MonoBehaviour
                 ballCarrierRole = ballCarrierRole,
                 wasPass = wasPass,
                 wasRun = wasRun,
-                wasScramble = wasScramble
+                wasScramble = wasScramble,
+                playerTeam = offenseTeam,
+                opponentTeam = defenseTeam
             };
 
         if (receiverChoiceCoroutine != null)
@@ -2616,7 +2628,7 @@ public class FootballPlaySequenceController : MonoBehaviour
         RestoreNormalTime();
         StopAllPlayerMovement();
 
-        onFinalOutcome?.Invoke(finalOutcome);
+        endScreenSequence.PlayEndSequence(finalOutcome);
         onPlayEnded?.Invoke();
     }
 
