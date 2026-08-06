@@ -36,7 +36,7 @@ MonoBehaviour:
     startingOffsetYards: {x: 12, y: 0}
     releaseDelay: 0
   playType: 1
-  choiceDelaySeconds: 2
+  choiceDelaySeconds: 1.5
   runBallCarrierRole: 1
   handoffDelaySeconds: 0.3
   handoffDistanceYards: 1

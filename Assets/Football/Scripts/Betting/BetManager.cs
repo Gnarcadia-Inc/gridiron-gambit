@@ -43,6 +43,7 @@ public class BetManager : MonoBehaviour
 
     public void PlaceBet()
     {
+        SfxManager.Instance.PlayPlaceBetSound();
         //REPLACE WITH PlaceBet() SDK CALL
         IncrementBalance(-currentBet);
     }
@@ -196,11 +197,15 @@ public class BetManager : MonoBehaviour
 
     public void IncrementCurrentBet()
     {
+        SfxManager.Instance.PlayBetIncreaseSound();
+
         SetCurrentBet(currentBet + 1);
     }
 
     public void DecrementCurrentBet()
     {
+        SfxManager.Instance.PlayBetDecreaseSound();
+
         SetCurrentBet(currentBet - 1);
     }
 
@@ -212,26 +217,36 @@ public class BetManager : MonoBehaviour
 
     public void QuickBetButtonFirst()
     {
+        SfxManager.Instance.PlayQuickBetSound(0.88f);
+
         SetCurrentBet(quickBetButtonValues[0]);
     }
 
     public void QuickBetButtonSecond()
     {
+        SfxManager.Instance.PlayQuickBetSound(0.91f);
+
         SetCurrentBet(quickBetButtonValues[1]);
     }
 
     public void QuickBetButtonThird()
     {
+        SfxManager.Instance.PlayQuickBetSound(0.94f);
+
         SetCurrentBet(quickBetButtonValues[2]);
     }
 
     public void QuickBetButtonFourth()
     {
+        SfxManager.Instance.PlayQuickBetSound(0.97f);
+
         SetCurrentBet(quickBetButtonValues[3]);
     }
 
     public void QuickBetButtonFifth()
     {
+        SfxManager.Instance.PlayQuickBetSound(1f);
+
         SetCurrentBet(quickBetButtonValues[4]);
     }
 }

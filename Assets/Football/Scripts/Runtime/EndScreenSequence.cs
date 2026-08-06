@@ -499,16 +499,16 @@ public class EndScreenSequence : MonoBehaviour
         {
             if (!playEntryValue.Item2)
             {
-                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "+ $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "+ $" + playEntryValue.Item1.ToString("F2") + " " + ToSpacedString(entry);
             }
             else
             {
-                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "x $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+                playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "x $" + playEntryValue.Item1.ToString("F2") + " " + ToSpacedString(entry);
             }
         }
         else
         {
-            playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "- $" + playEntryValue.Item1.ToString("F2") + ToSpacedString(entry);
+            playResultEntryPrefab.GetComponent<TextMeshProUGUI>().text = "- $" + playEntryValue.Item1.ToString("F2") + " " + ToSpacedString(entry);
         }
 
 
@@ -647,7 +647,7 @@ public class EndScreenSequence : MonoBehaviour
     public string ToSpacedString(PlayResultEntry enumValue)
     {
         string name = enumValue.ToString();
-        return Regex.Replace(name, @"(?<=[a-z])([A-Z])", " $1", RegexOptions.Compiled);
+        return Regex.Replace(name, @"(?<!^)([A-Z])", " $1");
     }
 
     private IEnumerator RollTotal(

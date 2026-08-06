@@ -106,6 +106,11 @@ public class FootballGameSetupController : MonoBehaviour
     [SerializeField]
     private BetManager betManager;
 
+    [SerializeField]
+    private CanvasGroup infoPanelCanvasGroup;
+
+    private Coroutine infoPanelCoroutine;
+
     private void Awake()
     {
         Time.timeScale = 1f;
@@ -143,6 +148,8 @@ public class FootballGameSetupController : MonoBehaviour
             selectedTeamIndex = teams.Length - 1;
         }
 
+        SfxManager.Instance.PlayWhooshSound();
+
         UpdateSelectedTeamDisplay();
     }
 
@@ -159,6 +166,8 @@ public class FootballGameSetupController : MonoBehaviour
         {
             selectedTeamIndex = 0;
         }
+
+        SfxManager.Instance.PlayWhooshSound();
 
         UpdateSelectedTeamDisplay();
     }
@@ -202,6 +211,8 @@ public class FootballGameSetupController : MonoBehaviour
 
         SetMainMenuInteractable(false);
 
+        SfxManager.Instance.StopThemeMusic();
+
         currentSituation =
             FootballSituationGenerator.Generate(
                 SelectedTeam,
@@ -243,6 +254,8 @@ public class FootballGameSetupController : MonoBehaviour
         ConfigurePlayOptions();
 
         sitchPanel.Hide();
+
+        SfxManager.Instance.PlayWhistleSound();
 
         if (playSelectionSlider != null)
         {
@@ -606,5 +619,63 @@ public class FootballGameSetupController : MonoBehaviour
                 button.interactable = false;
             }
         }
+    }
+
+    public void ShowInfoPanel()
+    {
+        if (infoPanelCoroutine != null)
+        {
+            StopCoroutine(infoPanelCoroutine);
+        }
+
+        infoPanelCoroutine = StartCoroutine(FadeInInfoPanel());
+    }
+
+    public void HideInfoPanel()
+    {
+        if (infoPanelCoroutine != null)
+        {
+            StopCoroutine(infoPanelCoroutine);
+        }
+
+        infoPanelCoroutine = StartCoroutine(FadeOutInfoPanel());
+    }
+
+    public IEnumerator FadeInInfoPanel()
+    {
+        SfxManager.Instance.PlayInfoButtonSound();
+
+        float elapsed = 0f;
+        infoPanelCanvasGroup.alpha = 0f;
+
+        infoPanelCanvasGroup.gameObject.SetActive(true);
+
+        while (elapsed < 0.125f)
+        {
+            elapsed += Time.deltaTime;
+            infoPanelCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / 0.125f);
+            yield return null;
+        }
+
+        infoPanelCanvasGroup.alpha = 1f;
+    }
+
+    public IEnumerator FadeOutInfoPanel()
+    {
+        SfxManager.Instance.PlayInfoButtonSound();
+
+        float elapsed = 0f;
+        infoPanelCanvasGroup.alpha = 1f;
+
+        while (elapsed < 0.125f)
+        {
+            elapsed += Time.deltaTime;
+            infoPanelCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / 0.125f);
+            yield return null;
+        }
+
+        infoPanelCanvasGroup.alpha = 0f;
+
+        infoPanelCanvasGroup.gameObject.SetActive(false);
     }
 }

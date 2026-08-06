@@ -161,7 +161,7 @@ public class PregameMenuAnimation : MonoBehaviour
             // Balance tab.
             balanceRect.anchoredPosition3D = Vector3.Lerp(
                 new Vector3(-806f, 150f, 0f),
-                new Vector3(-362f, 150f, 0f),
+                new Vector3(-462f, 150f, 0f),
                 t
             );
 
@@ -175,7 +175,7 @@ public class PregameMenuAnimation : MonoBehaviour
             // Place bet.
             placeBetRect.anchoredPosition3D = Vector3.Lerp(
                 new Vector3(0f, -700f, 0f),
-                new Vector3(0f, -500f, 0f),
+                new Vector3(0f, -300f, 0f),
                 t
             );
 
@@ -212,13 +212,13 @@ public class PregameMenuAnimation : MonoBehaviour
         backRect.localScale = Vector3.one;
 
         balanceRect.anchoredPosition3D =
-            new Vector3(-362f, 150f, 0f);
+            new Vector3(-462f, 150f, 0f);
 
         buttonsTransform.anchoredPosition3D =
             new Vector3(-115f, 0f, 0f);
 
         placeBetRect.anchoredPosition3D =
-            new Vector3(0f, -500f, 0f);
+            new Vector3(0f, -300f, 0f);
 
         placeBetCanvasGroup.alpha = 1f;
 
@@ -406,7 +406,7 @@ public class PregameMenuAnimation : MonoBehaviour
             // Slide everything back to where it entered from.
             balanceRect.anchoredPosition3D = Vector3.Lerp(
                 balanceStartPosition,
-                new Vector3(-362f, 650f, 0f),
+                new Vector3(-462f, 650f, 0f),
                 t);
 
             buttonsTransform.anchoredPosition3D = Vector3.Lerp(
@@ -451,7 +451,7 @@ public class PregameMenuAnimation : MonoBehaviour
         backRect.localScale = Vector3.one * 2f;
 
         balanceRect.anchoredPosition3D =
-            new Vector3(-362f, 650f, 0f);
+            new Vector3(-462f, 650f, 0f);
 
         buttonsTransform.anchoredPosition3D =
             new Vector3(85f, 0f, 0f);

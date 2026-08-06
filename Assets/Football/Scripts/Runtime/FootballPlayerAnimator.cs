@@ -6,7 +6,12 @@ public class FootballPlayerAnimator: MonoBehaviour
 {
     public Animator animator;
 
-    public FootballReceiverTarget footballReceiverTarget; 
+    public FootballReceiverTarget footballReceiverTarget;
+
+    private void Start()
+    {
+        animator.speed = Random.Range(0.9f, 1.1f);
+    }
 
     public void GetSet(DefensiveRole defRole = DefensiveRole.None, DefensiveFrontRole frontRole = DefensiveFrontRole.DefensiveLineman)
     {
